@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { contact } from '../config';
+
+const subject = encodeURIComponent('Demande depuis le site');
+---
+
+<BaseLayout
+  title="Contact"
+  description="Écrire, appeler ou réserver quinze minutes offertes."
+>
+  <PageHero
+    eyebrow="Contact"
+    title="Écrivez, appelez, ou réservez un créneau"
+    lead="Je réponds sous 48 heures ouvrées. Pour une question rapide, le téléphone reste le plus efficace."
+  />
+
+  <section class="section">
+    <div class="container contact-layout">
+      <div>
+        <h2 class="contact-layout__titre">Écrivez-moi</h2>
+        <ContactForm />
+      </div>
+
+      <aside class="contact-layout__aside">
+      <article class="channel">
+        <h2>Par téléphone</h2>
+        <p class="channel__value">
+          <a href={`tel:${contact.phoneLink}`}>{contact.phone}</a>
+        </p>
+        <p>Du lundi au vendredi, 9 h – 19 h. Laissez un message, je rappelle.</p>
+      </article>
+
+      <article class="channel">
+        <h2>Par e-mail</h2>
+        <p class="channel__value">
+          <a href={`mailto:${contact.email}?subject=${subject}`}>
+            {contact.email}
+          </a>
+        </p>
+        <p>
+          Décrivez votre situation en quelques lignes : cela me permet de vous
+          répondre utilement dès le premier message.
+        </p>
+      </article>
+
+      <article class="channel channel--highlight">
+        <h2>En quinze minutes</h2>
+        <p>
+          Un échange court et sans frais, pour savoir si cette démarche vous
+          correspond. C'est souvent plus rapide qu'un long e-mail.
+        </p>
+        <a class="button button--gold channel__cta" href="/rendez-vous/">
+          Réserver un créneau
+        </a>
+      </article>
+      </aside>
+    </div>
+
+    <div class="container note">
+      <p>
+        Pour une urgence médicale, appelez le 144 ou votre médecin traitant.
+        Je ne suis pas en mesure de répondre à une urgence.
+      </p>
+      <p>
+        Les consultations se font à {contact.address.city} ({contact.address.canton})
+        et en visioconférence.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  .contact-layout__titre {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-md);
+  }
+
+  .contact-layout__aside {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (max-width: 62rem) {
+    .contact-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .channel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .channel--highlight {
+    background: var(--color-green-wash);
+    border-color: var(--color-green-leaf);
+  }
+
+  .channel h2 {
+    font-size: var(--text-lg);
+  }
+
+  .channel__value {
+    font-family: var(--font-ui);
+    font-size: var(--text-xl);
+    font-weight: 800;
+    margin: var(--space-2xs) 0;
+    word-break: break-word;
+  }
+
+  .channel__value a {
+    text-decoration: none;
+  }
+
+  .channel p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .channel__cta {
+    margin-top: var(--space-sm);
+  }
+
+  .note {
+    margin-top: var(--space-lg);
+    display: grid;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+</style>

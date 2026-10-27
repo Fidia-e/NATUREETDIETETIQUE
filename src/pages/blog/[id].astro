@@ -1,0 +1,208 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+// On propose la suite dans la meme categorie, en completant si besoin
+const others = (await getCollection('blog', ({ data }) => !data.draft))
+  .filter((entry) => entry.id !== post.id)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const related = [
+  ...others.filter((entry) => entry.data.category === post.data.category),
+  ...others.filter((entry) => entry.data.category !== post.data.category),
+].slice(0, 2);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article>
+    <header class="article-hero">
+      <div class="container">
+        <p class="article-hero__breadcrumb">
+          <a href="/blog/">Conseils</a> · {post.data.category}
+        </p>
+        <h1>{post.data.title}</h1>
+        <p class="lead article-hero__lead">{post.data.description}</p>
+        <p class="article-hero__meta">
+          <time datetime={post.data.pubDate.toISOString()}>
+            {formatDate(post.data.pubDate)}
+          </time>
+          <span aria-hidden="true">·</span>
+          <span>{post.data.readingTime} min de lecture</span>
+          {
+            post.data.updatedDate && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>Mis à jour le {formatDate(post.data.updatedDate)}</span>
+              </>
+            )
+          }
+        </p>
+      </div>
+    </header>
+
+    <div class="container article-body">
+      <div class="prose article-prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+
+  <section class="section section--wash">
+    <div class="container">
+      <h2>À lire ensuite</h2>
+      <div class="grid grid--2 related">
+        {related.map((entry) => <ArticleCard post={entry} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--green">
+    <div class="container cta">
+      <div>
+        <h2>Un conseil général ne remplace pas un bilan</h2>
+        <p class="lead">
+          Ces articles donnent des repères. Pour votre situation précise, une
+          consultation ira beaucoup plus vite.
+        </p>
+      </div>
+      <a class="button button--gold" href="/rendez-vous/">Prendre rendez-vous</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .article-hero {
+    padding-block: var(--space-xl);
+    background:
+      radial-gradient(
+        44rem 22rem at 90% -40%,
+        var(--color-gold-wash),
+        transparent 60%
+      ),
+      var(--color-surface-alt);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .article-hero h1 {
+    font-size: var(--text-3xl);
+    max-width: 22ch;
+  }
+
+  .article-hero__breadcrumb {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xs);
+  }
+
+  .article-hero__lead {
+    max-width: 58ch;
+    margin-top: var(--space-sm);
+  }
+
+  .article-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .article-body {
+    padding-block: var(--space-xl);
+  }
+
+  .related {
+    margin-top: var(--space-md);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .cta .lead {
+    max-width: 48ch;
+    margin-top: var(--space-2xs);
+  }
+</style>
+
+<style is:global>
+  /* Mise en forme du markdown rendu : cible le contenu genere, donc global */
+  .article-prose > * + * {
+    margin-top: var(--space-sm);
+  }
+
+  .article-prose h2 {
+    font-size: var(--text-2xl);
+    margin-top: var(--space-lg);
+  }
+
+  .article-prose h3 {
+    margin-top: var(--space-md);
+  }
+
+  .article-prose ul,
+  .article-prose ol {
+    padding-left: 1.3rem;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .article-prose blockquote {
+    margin-inline: 0;
+    padding: var(--space-sm) var(--space-md);
+    border-left: 4px solid var(--color-gold);
+    background: var(--color-gold-wash);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+    font-style: italic;
+  }
+
+  .article-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .article-prose th,
+  .article-prose td {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .article-prose thead th {
+    font-family: var(--font-ui);
+    color: var(--color-green-deep);
+    border-bottom-width: 2px;
+  }
+
+  .article-prose strong {
+    color: var(--color-green-deep);
+  }
+</style>

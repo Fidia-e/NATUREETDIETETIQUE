@@ -1,0 +1,246 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import MediaSlot from '../components/MediaSlot.astro';
+
+const stages = [
+  {
+    number: '01',
+    title: 'Le BalanceTest',
+    text: "Le kit arrive chez vous. Quelques gouttes de sang sur une carte, l'enveloppe part au laboratoire, et le résultat revient sous 20 à 30 jours. Il est anonyme.",
+    detail: 'Deux minutes de votre temps, chez vous.',
+  },
+  {
+    number: '02',
+    title: "L'état des lieux",
+    text: "Une heure pour ouvrir le rapport ensemble. Je le traduis ligne par ligne, et je le croise avec ce que vous mangez, vos horaires, votre sommeil et votre activité.",
+    detail: 'Vous repartez avec un dossier écrit, le vôtre.',
+  },
+  {
+    number: '03',
+    title: "L'accompagnement",
+    text: "Deux ou trois changements à la fois, pas quinze. On se revoit toutes les trois à quatre semaines pour ajuster ce qui coince, parce que c'est toujours là que ça se joue.",
+    detail: 'La durée dépend de vous, pas d’un forfait.',
+  },
+  {
+    number: '04',
+    title: 'Le second test',
+    text: "Quatre mois plus tard, on remesure. C'est le seul moyen de savoir si ce que vous avez changé a produit un effet, au lieu de le supposer.",
+    detail: 'Des chiffres avant, des chiffres après.',
+  },
+];
+
+const includes = [
+  'Un dossier écrit, le vôtre, remis après l’état des lieux',
+  'Des objectifs hiérarchisés, pas une liste de trente conseils',
+  'Des menus et des idées de repas adaptés à vos contraintes',
+  'Un point sur l’eau que vous buvez et sur votre activité',
+  'Des échanges par e-mail entre les rendez-vous',
+  'Un second test de contrôle pour mesurer le chemin parcouru',
+];
+---
+
+<BaseLayout
+  title="Accompagnement"
+  description="Du BalanceTest à l'accompagnement nutritionnel : état des lieux écrit, objectifs hiérarchisés et second test de contrôle après quatre mois."
+>
+  <PageHero
+    eyebrow="Accompagnement diététique"
+    title="Le test mesure. L'accompagnement change les choses."
+    lead="Un rapport de laboratoire ne fait rien tout seul. Tout le travail consiste à le traduire en décisions que vous pouvez tenir, chez vous, avec votre vie telle qu'elle est."
+  />
+
+  <section class="section">
+    <div class="container">
+      <ol class="stages">
+        {
+          stages.map((stage) => (
+            <li class="stage">
+              <span class="stage__number">{stage.number}</span>
+              <div>
+                <h2>{stage.title}</h2>
+                <p>{stage.text}</p>
+                <p class="stage__detail">{stage.detail}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--wash">
+    <div class="container includes">
+      <div class="stack">
+        <p class="eyebrow">Ce qui est compris</p>
+        <h2>Un dossier, pas une ordonnance</h2>
+        <p>
+          La différence entre un conseil qui s'oublie et un conseil qui
+          s'applique tient souvent à une chose très simple : il est écrit, il
+          est à vous, et vous pouvez y revenir le mardi soir quand la question
+          se pose vraiment.
+        </p>
+        <ul class="includes__list">
+          {includes.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+
+      <MediaSlot label="Photo du dossier remis après l'état des lieux" ratio="4 / 3" />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container prose stack">
+      <h2>Ce que je ne fais pas</h2>
+      <ul class="limits">
+        <li>
+          Je ne pose aucun diagnostic et je ne remplace pas votre médecin. En
+          cas de pathologie ou de traitement en cours, je travaille en
+          complément de son suivi.
+        </li>
+        <li>
+          Je ne promets pas de nombre de kilos. Personne ne peut le savoir à
+          l'avance, et une promesse chiffrée est le meilleur moyen de vous faire
+          abandonner au premier écart.
+        </li>
+        <li>
+          Je ne donne pas de liste d'aliments interdits. La restriction
+          fabrique l'obsession, puis la reprise.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--green">
+    <div class="container cta">
+      <div>
+        <h2>Commencez par le bilan</h2>
+        <p class="lead">
+          Trois minutes de questions, un compte rendu immédiat, et quinze
+          minutes avec moi pour décider de la suite. Les deux sont offerts.
+        </p>
+      </div>
+      <div class="cta__actions">
+        <a class="button button--gold" href="/bilan/">Faire le bilan</a>
+        <a class="button button--ghost" href="/rendez-vous/">Réserver 15 min</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .stages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-md);
+    align-items: start;
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .stage:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .stage__number {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    color: var(--color-gold);
+  }
+
+  .stage h2 {
+    font-size: var(--text-xl);
+  }
+
+  .stage p {
+    margin-top: var(--space-2xs);
+    color: var(--color-text-muted);
+    max-width: 62ch;
+  }
+
+  .stage__detail {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-green-deep);
+  }
+
+  .includes {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .includes__list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-sm) 0 0;
+    display: grid;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+  }
+
+  .includes__list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs);
+  }
+
+  .includes__list li::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.55em;
+    border-radius: 50%;
+    background: var(--color-green-leaf);
+  }
+
+  .limits {
+    padding-left: 1.2rem;
+    display: grid;
+    gap: var(--space-xs);
+    color: var(--color-text-muted);
+  }
+
+  .limits::marker {
+    color: var(--color-gold);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .cta .lead {
+    max-width: 50ch;
+    margin-top: var(--space-2xs);
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  @media (max-width: 60rem) {
+    .includes {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

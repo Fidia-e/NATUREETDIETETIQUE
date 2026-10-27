@@ -1,0 +1,697 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaSlot from '../components/MediaSlot.astro';
+import Photo from '../components/Photo.astro';
+import VideoEmbed from '../components/VideoEmbed.astro';
+import RatioGauge from '../components/RatioGauge.astro';
+import Leaf from '../components/Leaf.astro';
+import CellComparison from '../components/CellComparison.astro';
+import { site, balanceVideoUrl, practitioner } from '../config';
+
+const signals = [
+  'Une fatigue qui ne passe pas avec le sommeil',
+  'Des douleurs articulaires ou musculaires diffuses',
+  'Une digestion lourde, irrégulière',
+  'Des kilos qui ne bougent plus',
+  'Un moral en dents de scie',
+  'Une peau sèche, des cheveux fragiles',
+];
+
+const steps = [
+  {
+    number: '01',
+    title: 'Le test',
+    text: "Un prélèvement de quelques gouttes de sang, fait chez vous en deux minutes. Le laboratoire analyse votre profil en acides gras.",
+  },
+  {
+    number: '02',
+    title: 'L’état des lieux',
+    text: "On ouvre votre rapport ensemble, ligne par ligne. Vous repartez avec un dossier écrit : ce que disent vos chiffres, et ce qui les explique dans votre quotidien.",
+  },
+  {
+    number: '03',
+    title: 'L’accompagnement',
+    text: "C’est là que tout se joue. On installe deux ou trois changements à la fois, on mesure à nouveau quatre mois plus tard, et on ajuste.",
+  },
+];
+---
+
+<BaseLayout title={site.name} description={site.description}>
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <p class="eyebrow">Bilan, test et accompagnement</p>
+        <h1>Savoir où vous en êtes, c'est déjà avancer</h1>
+        <p class="lead">
+          La fatigue, les douleurs, la digestion difficile : on finit par s'y
+          habituer, faute de savoir d'où ça vient. Un test sanguin et un état
+          des lieux clair remettent des chiffres sur ce que vous ressentez. À
+          partir de là, on peut décider.
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="/bilan/">
+            Faire le bilan en 3 minutes
+          </a>
+          <a class="button button--ghost" href="/rendez-vous/">
+            Réserver 15 min offertes
+          </a>
+        </div>
+        <p class="hero__note">
+          Bilan en ligne et premier échange téléphonique sans frais ni
+          engagement.
+        </p>
+      </div>
+
+      <div class="hero__visual">
+        <Photo
+          name="florie-portrait"
+          alt={`${practitioner.fullName}, qui vous accompagne`}
+          width={460}
+          height={842}
+          ratio="4 / 5"
+          focus="center 28%"
+          priority
+        />
+        <Leaf class="hero__leaf" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight signals">
+    <div class="container">
+      <p class="eyebrow">Ce qui amène ici</p>
+      <h2>Vous vous reconnaissez dans une de ces phrases ?</h2>
+      <ul class="signals__list">
+        {signals.map((signal) => <li>{signal}</li>)}
+      </ul>
+      <p class="signals__note">
+        Aucun de ces signes ne dit à lui seul ce qui se passe. Ensemble, ils
+        méritent qu'on regarde de plus près.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--wash" id="equilibre">
+    <div class="container balance">
+      <div class="balance__text stack">
+        <p class="eyebrow">L'équilibre</p>
+        <h2>Deux minutes pour comprendre l'essentiel</h2>
+        <p>
+          Nos cellules se construisent à partir de ce que nous mangeons. Parmi
+          les matériaux disponibles, deux familles de graisses se partagent la
+          place : les oméga-6, très présents dans l'alimentation moderne, et
+          les oméga-3, devenus rares dans nos assiettes.
+        </p>
+        <p>
+          Le rapport entre les deux s'est déplacé en quelques décennies. C'est
+          un déséquilibre mesurable, et c'est précisément ce qui le rend
+          intéressant : ce qui se mesure peut se suivre.
+        </p>
+        <a class="button button--primary" href="/bilan/">Faire le bilan</a>
+      </div>
+
+      <div class="balance__media">
+        {
+          balanceVideoUrl ? (
+            <VideoEmbed
+              src={balanceVideoUrl}
+              title="L'équilibre expliqué en deux minutes"
+              duration="2 min 21"
+            />
+          ) : (
+            <MediaSlot
+              label="Vidéo de 2 minutes sur l'équilibre"
+              caption="Renseignez l'URL d'intégration dans src/config.ts pour l'afficher ici."
+              ratio="16 / 9"
+            />
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="cellules">
+    <div class="container">
+      <CellComparison />
+    </div>
+  </section>
+
+  <section class="section section--wash" id="balancetest">
+    <div class="container test">
+      <div class="test__media stack">
+        <Photo
+          name="balancetest"
+          alt="Le kit Zinzino BalanceTest et la lancette de prélèvement"
+          width={647}
+          height={703}
+          ratio="4 / 3"
+        />
+        <RatioGauge />
+      </div>
+
+      <div class="test__text stack">
+        <p class="eyebrow">Le BalanceTest</p>
+        <h2>Un test, et des chiffres à la place des impressions</h2>
+        <p>
+          Le BalanceTest est un prélèvement capillaire que vous réalisez
+          vous-même : quelques gouttes de sang sur une carte, qui part au
+          laboratoire. Il mesure onze acides gras et en tire votre rapport
+          oméga-6 sur oméga-3.
+        </p>
+        <p>
+          Le rapport couramment observé avant un rééquilibrage se situe très
+          au-dessus de la zone visée. Savoir où vous êtes sur cette échelle ne
+          règle rien à soi seul, mais cela transforme une intuition en point de
+          départ, et permet de vérifier quatre mois plus tard si ce que vous
+          avez changé a produit un effet.
+        </p>
+        <ul class="test__list">
+          <li>Prélèvement à domicile, deux minutes</li>
+          <li>Résultat sous 20 à 30 jours</li>
+          <li>Résultat anonyme</li>
+          <li>Second test de contrôle après quatre mois</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--green" id="eau">
+    <div class="container water">
+      <div class="water__text stack">
+        <p class="eyebrow">L'eau</p>
+        <h2>Nous sommes faits d'eau à 70 %</h2>
+        <p class="lead">
+          C'est le premier constituant de nos cellules, et le plus facile à
+          négliger. Avant de parler de compléments ou de protocoles, il y a une
+          question simple : quelle eau buvez-vous, et en quelle quantité ?
+        </p>
+        <p>
+          L'eau du robinet est contrôlée et potable. Elle transporte aussi des
+          résidus que le traitement ne retire pas tous, et son passage sous
+          pression dans les canalisations n'a rien de naturel. C'est le point
+          de départ de la démarche de Sonatec, qui travaille sur la
+          filtration, la structuration et la dynamisation de l'eau domestique.
+        </p>
+        <p class="water__caveat">
+          Tout n'y est pas établi de la même façon, et je préfère vous dire
+          où passe la frontière plutôt que de vous laisser la découvrir
+          ailleurs. C'est l'objet de la page qui suit.
+        </p>
+        <a class="button button--gold" href="/l-eau/">
+          Comprendre l'eau que vous buvez
+        </a>
+      </div>
+
+      <div class="water__visual" aria-hidden="true">
+        <svg viewBox="0 0 200 240" class="water__drop">
+          <path
+            d="M100 16c38 52 62 86 62 118a62 62 0 1 1-124 0c0-32 24-66 62-118z"
+            fill="rgba(255,255,255,0.12)"
+            stroke="rgba(255,255,255,0.65)"
+            stroke-width="2.5"></path>
+          <path
+            d="M70 150c12 10 24 10 36 0s24-10 36 0"
+            fill="none"
+            stroke="var(--color-gold)"
+            stroke-width="3"
+            stroke-linecap="round"></path>
+          <path
+            d="M62 178c14 11 28 11 42 0s28-11 42 0"
+            fill="none"
+            stroke="rgba(255,255,255,0.5)"
+            stroke-width="3"
+            stroke-linecap="round"></path>
+        </svg>
+        <p class="water__stat"><strong>70 %</strong> de notre corps</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="accompagnement">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">L'accompagnement diététique</p>
+          <h2>Le test ne sert à rien sans ce qui vient après</h2>
+          <p class="lead accompagnement__lead">
+            Un résultat de laboratoire, seul, finit dans un tiroir. Ce qui
+            change quelque chose, c'est de le traduire en décisions applicables
+            chez vous, avec vos horaires, votre budget et ce que vous aimez
+            manger.
+          </p>
+        </div>
+        <a class="button button--ghost" href="/accompagnement/">
+          Voir le détail
+        </a>
+      </div>
+
+      <ol class="steps">
+        {
+          steps.map((step) => (
+            <li class="step">
+              <span class="step__number">{step.number}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--wash" id="apoe">
+    <div class="container apoe">
+      <div class="stack">
+        <p class="eyebrow">Aller plus loin</p>
+        <h2>Le test génétique APOE</h2>
+        <p>
+          Le gène APOE existe en plusieurs variantes, qui influencent la façon
+          dont l'organisme transporte les lipides et utilise les oméga-3. Deux
+          personnes aux habitudes identiques n'en tirent pas forcément les
+          mêmes bénéfices, et connaître son profil permet d'ajuster les
+          recommandations plutôt que d'appliquer une règle générale.
+        </p>
+        <p>
+          C'est un examen qui engage davantage qu'un bilan nutritionnel : il
+          porte sur votre patrimoine génétique, les résultats concernent aussi
+          votre famille, et ils ne s'interprètent pas seuls. En France, un test
+          génétique se réalise dans un cadre médical, sur prescription et avec
+          un consentement écrit. Nous en parlons si le sujet vous intéresse, et
+          je vous oriente vers le bon interlocuteur.
+        </p>
+        <a class="button button--ghost" href="/rendez-vous/">
+          En parler en 15 minutes
+        </a>
+      </div>
+
+      <Photo
+        name="nature-phyto"
+        alt="Plantes conservées dans des fioles de verre, à côté d'une fiole d'huile"
+        width={642}
+        height={1010}
+        ratio="1 / 1"
+        focus="center 65%"
+      />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container workshops">
+      <div class="stack">
+        <p class="eyebrow">Les ateliers</p>
+        <h2>« Je sais quoi manger, mais je ne sais pas cuisiner »</h2>
+        <p class="lead">
+          C'est la phrase que j'entends le plus souvent. Les ateliers existent
+          pour ça : chez moi, autour du plan de travail, à six au maximum, on
+          fait des recettes simples, courtes et reproductibles le mardi soir
+          après le travail.
+        </p>
+        <a class="button button--primary" href="/ateliers/">
+          Voir les ateliers
+        </a>
+      </div>
+
+      <Photo
+        name="atelier-cuisine"
+        alt="Trois personnes découpent des légumes autour d'une grande table de cuisine"
+        width={1100}
+        height={732}
+        ratio="3 / 2"
+      />
+    </div>
+  </section>
+
+  <figure class="band">
+    <Photo
+      name="marche-foret"
+      alt="Deux marcheurs souriants sur un sentier en forêt"
+      width={1400}
+      height={600}
+      class="band__photo"
+    />
+    <figcaption class="band__caption">
+      <span>bien vivre, chaque jour</span>
+    </figcaption>
+  </figure>
+
+  <section class="section section--tight final-cta">
+    <div class="container final-cta__inner">
+      <div>
+        <h2>Commencez par savoir</h2>
+        <p class="lead">
+          Trois minutes de questions, un compte rendu immédiat, puis quinze
+          minutes avec moi si vous le souhaitez. Sans frais, et sans suite
+          automatique.
+        </p>
+      </div>
+      <div class="final-cta__actions">
+        <a class="button button--gold" href="/bilan/">Faire le bilan</a>
+        <a class="button button--ghost" href="/rendez-vous/">
+          Réserver 15 min
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: var(--space-2xl);
+    background:
+      radial-gradient(
+        60rem 32rem at 85% -10%,
+        var(--color-gold-wash),
+        transparent 60%
+      ),
+      radial-gradient(
+        48rem 30rem at 0% 110%,
+        var(--color-green-wash),
+        transparent 65%
+      );
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .hero__content > * + * {
+    margin-top: var(--space-sm);
+  }
+
+  .hero h1 {
+    max-width: 16ch;
+  }
+
+  .hero .lead {
+    max-width: 48ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+  }
+
+  .hero__note {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .hero__visual {
+    position: relative;
+  }
+
+  /* La feuille vient du composant Leaf : sa balise ne porte pas la portee
+     de cette page, il faut donc viser la classe explicitement. */
+  .hero__visual :global(.hero__leaf) {
+    position: absolute;
+    bottom: -1.75rem;
+    left: -1.75rem;
+    width: 5.5rem;
+    color: var(--color-green-leaf);
+    filter: drop-shadow(0 6px 14px rgb(35 48 42 / 0.12));
+  }
+
+  .signals__list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-md) 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+    gap: var(--space-xs);
+  }
+
+  .signals__list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs);
+    align-items: start;
+    padding: 0.8rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .signals__list li::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.6em;
+    border-radius: 50%;
+    background: var(--color-gold);
+  }
+
+  .signals__note {
+    margin-top: var(--space-md);
+    max-width: 52ch;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .balance,
+  .test,
+  .apoe,
+  .workshops,
+  .water {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .balance__text,
+  .test__text {
+    max-width: 52ch;
+  }
+
+  .test__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+  }
+
+  .test__list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs);
+  }
+
+  .test__list li::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.55em;
+    border-radius: 50%;
+    background: var(--color-green-leaf);
+  }
+
+  .water__caveat {
+    max-width: 60ch;
+    font-size: var(--text-sm);
+    color: #c9dccd;
+    border-left: 3px solid var(--color-gold);
+    padding-left: var(--space-sm);
+  }
+
+  .water__visual {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-sm);
+  }
+
+  .water__drop {
+    width: min(100%, 14rem);
+  }
+
+  .water__stat {
+    font-family: var(--font-ui);
+    text-align: center;
+  }
+
+  .water__stat strong {
+    display: block;
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    font-style: italic;
+    color: var(--color-gold);
+  }
+
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  .accompagnement__lead {
+    max-width: 54ch;
+    margin-top: var(--space-md);
+  }
+
+  .steps {
+    list-style: none;
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+    gap: var(--space-lg);
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-sm);
+    align-items: start;
+    padding: var(--space-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .step__number {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    color: var(--color-gold);
+  }
+
+  .step p {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-top: var(--space-2xs);
+  }
+
+  /* Respiration avant l'appel final : une image large, sans texte par-dessus */
+  .band {
+    position: relative;
+    margin: 0;
+  }
+
+  /* Pleine largeur : ni coins arrondis ni ombre, qui supposent une carte */
+  .band :global(.band__photo) {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Une legende, pas une commande : un voile degrade plutot qu'une pastille,
+     et aucune interception du pointeur. */
+  .band__caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding-block: var(--space-xl) var(--space-sm);
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-green-deep) 80%, transparent),
+      transparent
+    );
+    color: #fff;
+    pointer-events: none;
+  }
+
+  .band__caption span {
+    display: block;
+    width: min(100% - 2.5rem, var(--width-content));
+    margin-inline: auto;
+    font-family: var(--font-ui);
+    font-style: italic;
+    font-size: var(--text-lg);
+    letter-spacing: 0.1em;
+    text-shadow: 0 1px 10px rgb(14 74 40 / 0.5);
+  }
+
+  /*
+   * L'appel final etait du meme vert que le pied de page juste en dessous :
+   * les deux blocs se confondaient en une seule dalle. Un creme chaud les
+   * separe, et fait ressortir le bouton dore bien mieux que le vert.
+   */
+  .final-cta {
+    background: var(--color-gold-wash);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .final-cta__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .final-cta .lead {
+    max-width: 52ch;
+    margin-top: var(--space-2xs);
+  }
+
+  .final-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  @media (max-width: 62rem) {
+    .hero__inner,
+    .balance,
+    .test,
+    .apoe,
+    .workshops,
+    .water {
+      grid-template-columns: 1fr;
+    }
+
+    /*
+     * Empilee, la goutte occupait un ecran entier pour annoncer un chiffre.
+     * Elle passe en bandeau : le dessin a gauche, le chiffre a cote.
+     */
+    .water__visual {
+      grid-auto-flow: column;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .water__drop {
+      width: 5rem;
+    }
+
+    .water__stat {
+      text-align: left;
+    }
+
+    .water__stat strong {
+      font-size: var(--text-2xl);
+    }
+
+    .hero__visual {
+      max-width: 22rem;
+      margin-inline: auto;
+    }
+
+    .test__media {
+      order: 2;
+    }
+
+    /*
+     * Trois etapes dans une grille a deux colonnes laissaient la troisieme
+     * seule sur sa ligne, et la suite 01-02-03 cessait de se lire. En une
+     * colonne le numero reste a gauche du texte, et l'enchainement se suit.
+     */
+    .steps {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+  }
+</style>

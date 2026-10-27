@@ -1,0 +1,490 @@
+/* ==========================================================================
+   Nature & diététique : jetons de design tires du logo
+   Les couleurs sont relevees directement sur le fichier d'origine.
+   ========================================================================== */
+
+:root {
+  /* Marque, relevee au pixel sur le logo */
+  --color-green-deep: #156839;   /* le mot "diététique" */
+  --color-green-leaf: #599e33;   /* le mot "Nature" */
+  --color-gold: #fab311;         /* le "&" du logo */
+  --color-gold-deep: #e09c05;    /* le meme, assombri pour le survol */
+  --color-taupe: #8a7671;        /* la baseline et le filet */
+
+  /* Declinaisons de travail */
+  --color-green-deep-dark: #0d4526;
+  --color-green-wash: #eff4ee;
+  --color-gold-wash: #fdf6e6;
+  --color-gold-ink: #3f2c06;     /* texte pose sur un aplat dore */
+
+  /* Surfaces : un papier chaud plutot qu'un blanc clinique */
+  --color-bg: #fbfaf5;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f3f1e9;
+  --color-text: #1b2420;
+  --color-text-muted: #5a665f;
+  --color-border: #e9e5d9;
+  --color-hairline: #efece2;
+
+  /* Typographie */
+  /*
+   * Deux familles, deux roles. Le serif porte les titres et les chiffres,
+   * la ou le regard se pose. Le sans tient le texte courant et l'interface,
+   * la ou il doit s'effacer.
+   */
+  --font-display: 'Lora Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Nunito Sans Variable', 'Nunito Sans', system-ui, sans-serif;
+  --font-ui: var(--font-body);
+
+  /*
+   * Echelle a fort contraste : les titres respirent, le texte courant reste
+   * sage. C'est l'ecart entre les deux qui donne le ton, pas les effets.
+   */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.4375rem;
+  --text-2xl: clamp(1.625rem, 1.3rem + 1.6vw, 2.25rem);
+  --text-3xl: clamp(1.75rem, 1.3rem + 2.4vw, 3.25rem);
+  --text-4xl: clamp(2.125rem, 1.35rem + 3.8vw, 4.5rem);
+
+  /* Rythme, plus genereux */
+  --space-2xs: 0.375rem;
+  --space-xs: 0.625rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.75rem;
+  --space-xl: 4.5rem;
+  --space-2xl: 7.5rem;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Ombres longues et tres douces : on devine la profondeur, on ne la voit pas */
+  --shadow-sm: 0 1px 2px rgb(27 36 32 / 0.04),
+    0 10px 24px -14px rgb(27 36 32 / 0.14);
+  --shadow-md: 0 2px 4px rgb(27 36 32 / 0.03),
+    0 28px 56px -28px rgb(27 36 32 / 0.2);
+
+  --width-content: 70rem;
+  --width-prose: 38rem;
+
+  /* Une seule courbe et une seule duree pour tout ce qui reagit au pointeur */
+  --transition: 0.3s ease-in-out;
+  /* L'apparition au defilement a son propre tempo, plus lent et sortant */
+  --transition-reveal: 0.7s ease-out;
+}
+
+/*
+ * L'echelle d'espacement est dessinee pour un grand ecran. Telle quelle sur
+ * un ecran etroit, une section vaut 120 px de blanc en haut et autant en bas :
+ * on passe son temps a faire defiler du vide. Elle se resserre en deux crans.
+ */
+/*
+ * Premier cran, des la tablette. Sans lui, un ecran de 768 px recevait encore
+ * les 120 px de blanc dessines pour un grand ecran : les sections n'avaient
+ * plus de rapport avec leur contenu.
+ */
+@media (max-width: 64rem) {
+  :root {
+    --space-lg: 2.25rem;
+    --space-xl: 3.5rem;
+    --space-2xl: 5.25rem;
+  }
+
+  /*
+   * Les mises en page a deux colonnes se replient en une seule, et le texte
+   * heritait alors de toute la largeur du conteneur : pres de quatre-vingt-dix
+   * signes par ligne. Passe une bonne soixantaine, l'oeil ne retrouve plus le
+   * debut de la ligne suivante. Les titres et les images gardent la largeur
+   * pleine, eux ne se lisent pas ligne a ligne.
+   */
+  .stack > p,
+  .stack > ul,
+  .stack > ol,
+  .stack > dl {
+    max-width: 66ch;
+  }
+}
+
+/* Deuxieme cran, sur telephone, ou la colonne est deux fois plus etroite. */
+@media (max-width: 46rem) {
+  :root {
+    --space-lg: 2rem;
+    --space-xl: 2.75rem;
+    --space-2xl: 4rem;
+  }
+
+  /*
+   * Filet pour les mots trop longs pour une colonne etroite. Pas de
+   * `hyphens: auto` : la cesure se declenchait des qu'elle le pouvait et
+   * coupait « FONCTIONNE-MENT » en deux. `overflow-wrap` n'intervient que
+   * lorsqu'un mot ne tient vraiment pas.
+   */
+  h1,
+  h2,
+  h3,
+  h4 {
+    overflow-wrap: break-word;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reinitialisation minimale
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Titres et texte courant
+   -------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--color-green-deep);
+}
+
+h3,
+h4 {
+  line-height: 1.26;
+  letter-spacing: -0.012em;
+}
+
+h1 {
+  font-size: var(--text-4xl);
+}
+h2 {
+  font-size: var(--text-3xl);
+}
+h3 {
+  font-size: var(--text-xl);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--color-green-deep);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--color-green-leaf);
+}
+
+/*
+ * Tout ce qui reagit au survol ou au focus passe par la meme transition.
+ * Les composants n'ont plus a la redeclarer, et le site garde un seul tempo.
+ */
+a,
+button,
+.button,
+.card,
+label,
+summary,
+input,
+select,
+textarea,
+[role='button'] {
+  transition:
+    color var(--transition),
+    background-color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition),
+    opacity var(--transition),
+    filter var(--transition),
+    transform var(--transition);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Selection : le jaune du « & » du logo, avec le noir du texte courant */
+::selection {
+  background: var(--color-gold);
+  color: var(--color-text);
+  text-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   Utilitaires de mise en page
+   -------------------------------------------------------------------------- */
+
+.container {
+  width: min(100% - 2.5rem, var(--width-content));
+  margin-inline: auto;
+}
+
+.prose {
+  width: min(100%, var(--width-prose));
+}
+
+/*
+ * `.prose` redefinit `width`, et emportait avec lui la gouttiere que
+ * `.container` tire de son `100% - 2.5rem` : sur un ecran etroit le texte
+ * venait toucher les deux bords. Pose sur le conteneur lui-meme, il la
+ * reprend ; imbrique dans un conteneur, il n'en a pas besoin, elle est
+ * deja la.
+ */
+.container.prose {
+  width: min(100% - 2.5rem, var(--width-prose));
+}
+
+.section {
+  padding-block: var(--space-2xl);
+}
+
+.section--tight {
+  padding-block: var(--space-xl);
+}
+
+.section--wash {
+  background: var(--color-surface-alt);
+}
+
+.section--green {
+  background: var(--color-green-deep);
+  color: #f3f7f2;
+}
+
+.section--green h2,
+.section--green h3 {
+  color: #ffffff;
+}
+
+.stack > * + * {
+  margin-top: var(--space-sm);
+}
+
+/* L'oeil doit croiser le sur-titre avant le titre : il annonce la section. */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-green-leaf);
+  margin-bottom: var(--space-sm);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 2rem;
+  height: 1px;
+  flex: none;
+  background: var(--color-gold);
+}
+
+.section--green .eyebrow {
+  color: var(--color-gold);
+}
+
+.lead {
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.section--green .lead {
+  color: #d7e5da;
+}
+
+/* --------------------------------------------------------------------------
+   Boutons
+   -------------------------------------------------------------------------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding: 0.85rem 1.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button--primary {
+  background: var(--color-green-deep);
+  border-color: var(--color-green-deep);
+  color: #ffffff;
+}
+
+.button--primary:hover {
+  background: var(--color-green-deep-dark);
+  border-color: var(--color-green-deep-dark);
+  color: #ffffff;
+  box-shadow: 0 10px 24px -12px rgb(21 104 57 / 0.55);
+}
+
+/* Un aplat dore, sans degrade : le degrade est reserve au logo */
+.button--gold {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-gold-ink);
+}
+
+/* Le bouton dore est le seul a se soulever : c'est l'appel principal. */
+.button--gold:hover {
+  background: var(--color-gold-deep);
+  border-color: var(--color-gold-deep);
+  color: var(--color-gold-ink);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px -14px rgb(250 179 17 / 0.75);
+}
+
+.button--gold:active {
+  transform: translateY(-1px);
+}
+
+.button--ghost {
+  border-color: color-mix(in srgb, var(--color-green-deep) 32%, transparent);
+  color: var(--color-green-deep);
+  background: transparent;
+}
+
+.button--ghost:hover {
+  border-color: var(--color-green-deep);
+  background: var(--color-green-deep);
+  color: #ffffff;
+}
+
+.section--green .button--ghost {
+  border-color: rgb(255 255 255 / 0.4);
+  color: #ffffff;
+}
+
+.section--green .button--ghost:hover {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: var(--color-green-deep);
+}
+
+/* --------------------------------------------------------------------------
+   Cartes et grilles
+   -------------------------------------------------------------------------- */
+
+.grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+}
+
+.grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg) var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*
+ * Apparition au defilement. Le style ne s'applique que si le script a pose
+ * son drapeau : sans JavaScript, tout reste visible et en place.
+ */
+:root[data-reveal='on'] main > section {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--transition-reveal),
+    transform var(--transition-reveal);
+}
+
+:root[data-reveal='on'] main > section[data-seen] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

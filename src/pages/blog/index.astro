@@ -1,0 +1,151 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+// Les categories viennent des articles eux-memes : pas de liste a maintenir a cote
+const categories = [...new Set(posts.map((post) => post.data.category))].sort();
+---
+
+<BaseLayout
+  title="Conseils"
+  description="Articles de diététique et de nutrition : repères pratiques, décryptages d'étiquettes, recettes et organisation des repas."
+>
+  <PageHero
+    eyebrow="Conseils"
+    title="Des repères utilisables dès demain"
+    lead="Pas de recette miracle ni de liste d'aliments magiques. Des explications sur ce qui se passe réellement, et ce que vous pouvez en faire."
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="filters" role="group" aria-label="Filtrer par catégorie">
+        <button class="filter" type="button" data-filter="toutes" aria-pressed="true">
+          Toutes
+        </button>
+        {
+          categories.map((category) => (
+            <button
+              class="filter"
+              type="button"
+              data-filter={category}
+              aria-pressed="false"
+            >
+              {category}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="grid grid--3 posts" id="liste-articles">
+        {
+          posts.map((post) => (
+            <div class="posts__item" data-category={post.data.category}>
+              <ArticleCard post={post} />
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="posts__empty" hidden>Aucun article dans cette catégorie.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+  }
+
+  .filter {
+    padding: 0.4rem 1rem;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background-color var(--transition), color var(--transition),
+      border-color var(--transition);
+  }
+
+  .filter:hover {
+    border-color: var(--color-green-leaf);
+    color: var(--color-green-deep);
+  }
+
+  .filter[aria-pressed='true'] {
+    background: var(--color-green-deep);
+    border-color: var(--color-green-deep);
+    color: #ffffff;
+  }
+
+  /*
+   * `auto-fill` et non `auto-fit`, le defaut de `.grid--3`. Une fois le
+   * filtre pose il ne reste parfois qu'un article : avec `auto-fit` les
+   * colonnes vides s'effacent et la carte restante s'etirait sur toute la
+   * largeur. Les colonnes restent donc en place, et une carte garde la meme
+   * taille qu'on en affiche une ou quatre.
+   */
+  .posts {
+    grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+  }
+
+  .posts__item {
+    display: flex;
+  }
+
+  /*
+   * Indispensable. `item.hidden = true` pose bien l'attribut, mais le
+   * `display: none` qui l'accompagne vient de la feuille du navigateur : la
+   * regle d'auteur juste au-dessus lui passe devant et l'article reste
+   * visible. C'est ce qui empechait le filtre de filtrer.
+   */
+  .posts__item[hidden] {
+    display: none;
+  }
+
+  .posts__item > * {
+    width: 100%;
+  }
+
+  .posts__empty {
+    margin-top: var(--space-md);
+    color: var(--color-text-muted);
+  }
+</style>
+
+<script>
+  const filters = document.querySelectorAll<HTMLButtonElement>('.filter');
+  const items = document.querySelectorAll<HTMLElement>('.posts__item');
+  const empty = document.querySelector<HTMLElement>('.posts__empty');
+
+  filters.forEach((button) => {
+    button.addEventListener('click', () => {
+      const selected = button.dataset.filter;
+
+      filters.forEach((other) => {
+        other.setAttribute('aria-pressed', String(other === button));
+      });
+
+      let visible = 0;
+      items.forEach((item) => {
+        const match = selected === 'toutes' || item.dataset.category === selected;
+        item.hidden = !match;
+        if (match) visible += 1;
+      });
+
+      if (empty) empty.hidden = visible > 0;
+    });
+  });
+</script>

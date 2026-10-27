@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nature et diététique">
+  <defs>
+    <linearGradient id="b-leaf" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#156839"/>
+      <stop offset="55%" stop-color="#599E33"/>
+      <stop offset="100%" stop-color="#FAB311"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="#FDFCF8"/>
+  <path d="M50 10c2.6 19-5.6 32.8-19 37.4C24.4 49.7 18.8 49.7 15 48.2c1-16.4 10.3-29 23.7-35.1C42.9 11.2 47 10.4 50 10z" fill="url(#b-leaf)"/>
+  <path d="M50 10C35.6 19.4 23.8 32.6 16.6 49.4" fill="none" stroke="#FDFCF8" stroke-width="3.4" stroke-linecap="round"/>
+</svg>

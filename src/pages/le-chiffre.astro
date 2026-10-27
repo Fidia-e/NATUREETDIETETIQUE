@@ -1,0 +1,364 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import VideoEmbed from '../components/VideoEmbed.astro';
+import RatioGauge from '../components/RatioGauge.astro';
+import LeadForm from '../components/LeadForm.astro';
+import MediaSlot from '../components/MediaSlot.astro';
+import { balanceVideoUrl, testsRealises } from '../config';
+
+/**
+ * Temoignages de clientes de Florie.
+ * Vides tant qu'elle n'en a pas fourni : la section ne s'affiche pas. Ne
+ * jamais y reprendre ceux d'un autre praticien, ils seraient attribues a sa
+ * pratique. Chaque entree accepte un avant et un apres facultatifs.
+ */
+const temoignages: {
+  texte: string;
+  auteur: string;
+  avant?: string;
+  apres?: string;
+}[] = [];
+
+const compteur = testsRealises.nombre.toLocaleString('fr-CH').replace(/ | /g, ' ');
+const releve = new Date(testsRealises.releveLe).toLocaleDateString('fr-FR', {
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout
+  title="Le chiffre le plus important de votre santé"
+  description="Fatigue, sommeil, articulations, poids : et si tout venait d'un déséquilibre invisible ? Mesurez votre rapport oméga-6 sur oméga-3."
+>
+  <section class="hook">
+    <div class="container hook__inner">
+      <p class="eyebrow">Équilibre cellulaire</p>
+      <h1>
+        Fatigue, sommeil, articulations, poids.<br />
+        Et si le problème n'était pas vous ?
+      </h1>
+      <p class="lead hook__lead">
+        Une fatigue qui traîne, un sommeil en dents de scie, des articulations
+        qui tirent, des kilos qui résistent malgré vos efforts. Et si tout cela
+        venait d'un déséquilibre invisible dans votre corps ?
+      </p>
+      <p class="hook__punch">
+        Vous connaissez votre poids, votre taille, votre tension.
+        <strong>Mais pas ce chiffre-là.</strong>
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--wash">
+    <div class="container video-bloc">
+      <div class="stack video-bloc__texte">
+        <h2>Et si, au lieu de deviner, vous pouviez mesurer ?</h2>
+        <p>
+          Dans la vidéo ci-dessous, découvrez le concept d'équilibre
+          cellulaire : ce qui se joue vraiment dans votre corps, pourquoi c'est
+          la base de votre bien-être, et comment on peut le rééquilibrer de
+          façon simple et mesurable.
+        </p>
+      </div>
+
+      {
+        balanceVideoUrl ? (
+          <VideoEmbed
+            src={balanceVideoUrl}
+            title="L'équilibre cellulaire expliqué"
+            duration="2 min 21"
+            label="Lire la vidéo"
+          />
+        ) : (
+          <MediaSlot
+            label="Vidéo sur l'équilibre cellulaire"
+            caption="Renseignez l'URL d'intégration dans src/config.ts."
+            ratio="16 / 9"
+          />
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container compteur">
+      <p class="compteur__label">Tests réalisés à ce jour</p>
+      <p class="compteur__nombre">{compteur}</p>
+      <p class="compteur__note">
+        Chiffre communiqué par Zinzino, relevé en {releve}. Il avance tous les
+        jours : de nouveaux tests sont réalisés en permanence.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container marqueur">
+      <div class="stack marqueur__texte">
+        <h2>Ce déséquilibre, on ne le sent pas.</h2>
+        <p>
+          La plupart d'entre nous connaissons notre poids, notre taille, notre
+          tension artérielle. Mais très rares sont ceux qui connaissent ce
+          chiffre, qui est pourtant un marqueur essentiel de notre santé.
+        </p>
+        <p class="eyebrow marqueur__eyebrow">Votre marqueur</p>
+        <p class="marqueur__titre">Oméga-6 / Oméga-3</p>
+        <p>
+          C'est votre équilibre entre deux acides gras essentiels. Notre
+          alimentation moderne nous en apporte beaucoup trop d'un côté, et pas
+          assez de l'autre. On ne le sent pas directement, mais le corps, lui,
+          le subit au quotidien : moins d'énergie, récupération plus lente,
+          inconfort qui s'installe.
+        </p>
+        <p>
+          Le pire ? La plupart des gens essaient de corriger à l'aveugle, sans
+          jamais savoir où ils en sont vraiment.
+        </p>
+      </div>
+
+      <RatioGauge />
+    </div>
+  </section>
+
+  {
+    temoignages.length > 0 && (
+      <section class="section section--wash">
+        <div class="container">
+          <p class="eyebrow">Ils ont fait le test</p>
+          <h2>Des chiffres, pas des promesses.</h2>
+
+          <div class="grid grid--2 temoignages">
+            {temoignages.map((t) => (
+              <figure class="temoignage">
+                <blockquote>{t.texte}</blockquote>
+                <figcaption>
+                  {t.auteur}
+                  {t.avant && t.apres && (
+                    <span class="temoignage__ratio">
+                      {t.avant} <span aria-hidden="true">→</span> {t.apres}
+                    </span>
+                  )}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+
+          <p class="temoignages__mention">
+            Témoignages individuels, recueillis auprès de personnes ayant
+            utilisé ces compléments. Ils rapportent des ressentis personnels et
+            ne constituent ni une promesse de résultat, ni un avis médical. Les
+            compléments alimentaires ne se substituent pas à une alimentation
+            variée ni à un suivi médical.
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section">
+    <div class="container prose stack methode">
+      <h2>On teste, on ajuste, on re-teste.</h2>
+      <p>
+        Ce qui rend cette approche différente, c'est qu'elle ne repose pas sur
+        des promesses, mais sur une mesure concrète. Du factuel, pas du hasard.
+      </p>
+      <p>
+        Zinzino s'engage par ailleurs à vous rembourser si votre test révèle
+        que tout est déjà équilibré. Vous avez donc tout à gagner à connaître
+        enfin votre chiffre.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--tight formulaire">
+    <div class="container formulaire__inner">
+      <div class="stack">
+        <h2>Vous voulez savoir où vous en êtes ?</h2>
+        <p class="lead">
+          Laissez-moi vos coordonnées. Je vous recontacte personnellement pour
+          vous expliquer comment faire le point, sans engagement.
+        </p>
+      </div>
+
+      <LeadForm />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hook {
+    padding-block: var(--space-2xl);
+    background:
+      radial-gradient(
+        58rem 30rem at 82% -14%,
+        var(--color-gold-wash),
+        transparent 62%
+      ),
+      radial-gradient(
+        46rem 28rem at 2% 108%,
+        var(--color-green-wash),
+        transparent 66%
+      );
+  }
+
+  .hook__inner {
+    max-width: 44rem;
+  }
+
+  .hook h1 {
+    max-width: 20ch;
+  }
+
+  .hook__lead {
+    max-width: 52ch;
+    margin-top: var(--space-md);
+  }
+
+  /* La phrase qui fait basculer : elle doit se lire seule */
+  .hook__punch {
+    margin-top: var(--space-lg);
+    padding-left: var(--space-md);
+    border-left: 3px solid var(--color-gold);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    line-height: 1.4;
+  }
+
+  .hook__punch strong {
+    display: block;
+    color: var(--color-green-deep);
+  }
+
+  .video-bloc {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .video-bloc__texte {
+    max-width: 44ch;
+  }
+
+  .compteur {
+    text-align: center;
+  }
+
+  .compteur__label {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-green-leaf);
+  }
+
+  .compteur__nombre {
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 7vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--color-green-deep);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compteur__note {
+    max-width: 48ch;
+    margin: var(--space-sm) auto 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .marqueur {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .marqueur__texte {
+    max-width: 50ch;
+  }
+
+  .marqueur__eyebrow {
+    margin-top: var(--space-md);
+  }
+
+  .marqueur__titre {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-green-deep);
+  }
+
+  .temoignages {
+    margin-top: var(--space-lg);
+  }
+
+  .temoignage {
+    margin: 0;
+    padding: var(--space-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .temoignage blockquote {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .temoignage figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-green-deep);
+  }
+
+  .temoignage__ratio {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-gold);
+  }
+
+  .temoignages__mention {
+    margin-top: var(--space-lg);
+    max-width: var(--width-prose);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .formulaire {
+    background: var(--color-gold-wash);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .formulaire__inner {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  @media (max-width: 62rem) {
+    .video-bloc,
+    .marqueur,
+    .formulaire__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

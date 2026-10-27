@@ -1,0 +1,70 @@
+---
+/**
+ * Signature de l'auteur du site, identique d'un projet a l'autre.
+ */
+---
+
+<p class="signature">
+  <span class="signature__lead">
+    Une création sur-mesure, pensée et codée par
+  </span>{' '}
+  <a
+    class="signature__name"
+    href="https://sacreemome.com/"
+    target="_blank"
+    rel="noopener">Maison Sacrée Môme</a
+  >.
+</p>
+
+<style>
+  /*
+   * Deux tons : la phrase s'efface, le nom ressort. Le contexte les fixe par
+   * `--signature-text` et `--signature-name`, pour que le composant reste
+   * posable sur un fond clair comme sur un fond sombre.
+   */
+  .signature {
+    margin: 0;
+    color: var(--signature-text, inherit);
+    letter-spacing: 0.01em;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .signature a {
+    color: var(--signature-name, inherit);
+    text-decoration: none;
+  }
+
+  /* Le soulignement n'arrive qu'au survol : au repos, c'est une signature,
+     pas un lien utilitaire. */
+  .signature a:hover {
+    color: var(--signature-name, inherit);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+  }
+
+  /*
+   * Une seule ligne tant qu'elle tient, et quand la place manque la coupure
+   * tombe apres « par ».
+   *
+   * Les deux parties sont insecables : le seul endroit ou le navigateur peut
+   * passer a la ligne est l'espace qui les separe. Pas de seuil en pixels a
+   * deviner, la bascule se fait d'elle-meme a la largeur exacte ou la phrase
+   * cesse de tenir.
+   */
+  .signature__lead,
+  .signature__name {
+    white-space: nowrap;
+  }
+
+  /*
+   * Sous 23 rem meme le debut de phrase ne tient plus : on lui rend le droit
+   * de se replier, plutot que de le laisser deborder du cadre.
+   */
+  @media (max-width: 23rem) {
+    .signature__lead {
+      white-space: normal;
+    }
+  }
+</style>

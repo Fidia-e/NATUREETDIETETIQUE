@@ -1,0 +1,234 @@
+---
+/**
+ * Capture de coordonnees de la page entonnoir.
+ * Volontairement court : trois champs, un consentement. Chaque champ en plus
+ * coute des reponses.
+ */
+import { contact, contactEndpoint } from '../config';
+---
+
+<form
+  class="lead"
+  data-lead
+  method="post"
+  action={contactEndpoint ?? undefined}
+  data-endpoint={contactEndpoint ?? ''}
+  data-fallback={contact.email}
+>
+  <div class="lead__grid">
+    <label class="lead__field">
+      <span>Prénom <abbr title="obligatoire">*</abbr></span>
+      <input type="text" name="prenom" autocomplete="given-name" required />
+    </label>
+
+    <label class="lead__field">
+      <span>Nom</span>
+      <input type="text" name="nom" autocomplete="family-name" />
+    </label>
+
+    <label class="lead__field">
+      <span>Téléphone <abbr title="obligatoire">*</abbr></span>
+      <input type="tel" name="telephone" autocomplete="tel" required />
+    </label>
+  </div>
+
+  {/* Piege a robots : hors de l'ecran, jamais rempli par un humain */}
+  <div class="lead__piege" aria-hidden="true">
+    <label>
+      Ne remplissez pas ce champ
+      <input type="text" name="site" tabindex="-1" autocomplete="off" />
+    </label>
+  </div>
+
+  <label class="lead__consent">
+    <input type="checkbox" name="consentement" required />
+    <span>
+      J'accepte d'être recontactée au sujet du bilan d'équilibre cellulaire.
+      Mes coordonnées ne servent à rien d'autre.{' '}
+      <a href="/mentions-legales/#vos-donnees">Voir les mentions de confidentialité</a>
+    </span>
+  </label>
+
+  <button class="button button--gold lead__envoi" type="submit" data-lead-submit>
+    Je veux connaître mon chiffre
+  </button>
+
+  <p class="lead__note">
+    Aucune obligation. Juste un échange pour répondre à vos questions et voir
+    si cette approche est faite pour vous.
+  </p>
+
+  <p class="lead__status" data-lead-status role="status" hidden></p>
+</form>
+
+<style>
+  .lead {
+    display: grid;
+    gap: var(--space-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .lead__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
+    gap: var(--space-md);
+  }
+
+  .lead__field {
+    display: grid;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+  }
+
+  .lead__field > span {
+    font-family: var(--font-ui);
+    font-weight: 700;
+  }
+
+  .lead__field abbr {
+    color: var(--color-gold);
+    text-decoration: none;
+  }
+
+  .lead__field input {
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    font: inherit;
+    font-size: var(--text-base);
+  }
+
+  .lead__field input:focus-visible {
+    border-color: var(--color-green-deep);
+  }
+
+  .lead__piege {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .lead__consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs);
+    align-items: start;
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+
+  .lead__consent input {
+    margin-top: 0.2em;
+    accent-color: var(--color-green-deep);
+  }
+
+  .lead__envoi {
+    justify-self: start;
+    font-size: var(--text-base);
+    padding: 1rem 2rem;
+  }
+
+  .lead__note {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .lead__status {
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+  }
+
+  .lead__status[data-state='ok'] {
+    background: var(--color-green-wash);
+    color: var(--color-green-deep);
+    font-weight: 600;
+  }
+
+  .lead__status[data-state='error'] {
+    background: #fbeee6;
+    color: #a8341a;
+  }
+
+  @media (max-width: 40rem) {
+    .lead {
+      padding: var(--space-md);
+    }
+
+    .lead__envoi {
+      justify-self: stretch;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-lead]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-lead-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-lead-submit]')!;
+    const endpoint = form.dataset.endpoint || null;
+    const fallback = form.dataset.fallback!;
+
+    const dire = (etat: 'ok' | 'error' | 'pending', texte: string) => {
+      status.hidden = false;
+      status.dataset.state = etat;
+      status.textContent = texte;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      if (!form.reportValidity()) return;
+      const data = new FormData(form);
+
+      // Le piege est rempli : c'est un robot
+      if (String(data.get('site') ?? '').trim()) {
+        event.preventDefault();
+        dire('ok', 'Merci, vos coordonnées sont bien arrivées.');
+        return;
+      }
+
+      if (!endpoint) {
+        event.preventDefault();
+        const lignes = [
+          `Prénom : ${data.get('prenom')}`,
+          `Nom : ${data.get('nom') || '—'}`,
+          `Téléphone : ${data.get('telephone')}`,
+          '',
+          'Demande : être recontacté au sujet du bilan d’équilibre cellulaire.',
+        ];
+        window.location.href = `mailto:${fallback}?subject=${encodeURIComponent(
+          'Je veux connaître mon chiffre'
+        )}&body=${encodeURIComponent(lignes.join('\n'))}`;
+        dire('ok', 'Votre messagerie vient de s’ouvrir : il ne reste qu’à envoyer.');
+        return;
+      }
+
+      event.preventDefault();
+      submit.disabled = true;
+      dire('pending', 'Envoi en cours…');
+
+      try {
+        const reponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: data,
+        });
+        if (!reponse.ok) throw new Error(String(reponse.status));
+        form.reset();
+        dire('ok', 'Merci. Je vous rappelle très vite pour en parler.');
+      } catch {
+        dire('error', `L’envoi a échoué. Écrivez-moi directement à ${fallback}.`);
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

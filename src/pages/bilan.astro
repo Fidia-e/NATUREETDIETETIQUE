@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FunnelQuiz from '../components/FunnelQuiz.astro';
+---
+
+<BaseLayout
+  title="Le bilan offert"
+  description="Trois minutes de questions sur votre énergie, vos douleurs, votre digestion et votre moral. Compte rendu immédiat, puis 15 minutes offertes pour en parler."
+>
+  <PageHero
+    eyebrow="Bilan offert"
+    title="Trois minutes pour faire le point"
+    lead="Une vingtaine de questions sur ce que vous ressentez au quotidien. Le compte rendu s'affiche tout de suite, à l'écran, avant toute demande d'adresse e-mail."
+  />
+
+  <section class="section">
+    <div class="container">
+      <FunnelQuiz />
+    </div>
+  </section>
+</BaseLayout>

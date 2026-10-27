@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nature et diététique">
+  <rect width="64" height="64" rx="15" fill="#156839"/>
+  <path d="M49 11c2.6 18.6-5.4 32.2-18.6 36.6-6.4 2.2-11.8 2.2-15.4.8C16 32.4 25.1 20.1 38.2 14.2 42.3 12.4 46.1 11.5 49 11z" fill="#FAB311"/>
+  <path d="M49 11C34.9 20.2 23.4 33.1 16.4 49.4" fill="none" stroke="#599E33" stroke-width="3.6" stroke-linecap="round"/>
+</svg>

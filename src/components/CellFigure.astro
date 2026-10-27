@@ -1,0 +1,40 @@
+---
+/**
+ * Illustration d'une cellule, decoupee dans le support de Zinzino.
+ * Les fleches d'entree et de sortie font partie du dessin : la page n'en
+ * ajoute pas, elle se contente de poser les legendes de part et d'autre.
+ */
+import Photo from './Photo.astro';
+
+interface Props {
+  tone: 'rigide' | 'souple';
+}
+
+const { tone } = Astro.props;
+
+const legende =
+  tone === 'rigide'
+    ? "Cellule à membrane dure et rigide : les flèches d'entrée des nutriments et de sortie des déchets sont fines et discontinues"
+    : "Cellule à membrane douce et souple : les flèches d'entrée des nutriments et de sortie des déchets sont pleines et continues";
+---
+
+<Photo
+  name={`cellule-${tone}`}
+  alt={legende}
+  width={656}
+  height={414}
+  fallback="webp"
+  class="cell-figure"
+/>
+
+<style>
+  /*
+   * La classe est posee sur un composant enfant : sans `:global`, la regle ne
+   * l'atteint pas. Et il faut viser `.photo.cell-figure`, sinon la regle du
+   * composant Photo l'emporte a l'ordre, a specificite egale.
+   */
+  :global(.photo.cell-figure) {
+    border-radius: 0;
+    box-shadow: none;
+  }
+</style>

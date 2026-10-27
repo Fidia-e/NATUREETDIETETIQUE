@@ -1,0 +1,67 @@
+---
+/**
+ * Photo du site, servie en AVIF avec repli JPEG.
+ * Les deux fichiers portent le meme nom de base dans /public/images.
+ */
+interface Props {
+  /** Nom de base, sans extension ni chemin. */
+  name: string;
+  alt: string;
+  width: number;
+  height: number;
+  /** Cadrage impose, par exemple "3 / 4". Sans valeur, le ratio du fichier. */
+  ratio?: string;
+  /** Position du sujet dans le cadre quand l'image est rognee. */
+  focus?: string;
+  /**
+   * Format de repli pour les navigateurs sans AVIF. Le JPEG convient aux
+   * photographies ; le WebP est necessaire des que l'image a de la
+   * transparence, que le JPEG ne sait pas porter.
+   */
+  fallback?: 'jpg' | 'webp';
+  /** La seule image visible au chargement merite d'etre chargee en priorite. */
+  priority?: boolean;
+  class?: string;
+}
+
+const {
+  name,
+  alt,
+  width,
+  height,
+  ratio,
+  focus = 'center',
+  fallback = 'jpg',
+  priority = false,
+  class: className,
+} = Astro.props;
+---
+
+<picture class:list={['photo', className]}>
+  <source srcset={`/images/${name}.avif`} type="image/avif" />
+  <img
+    src={`/images/${name}.${fallback}`}
+    alt={alt}
+    width={width}
+    height={height}
+    style={ratio ? `aspect-ratio:${ratio};object-position:${focus};` : undefined}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding={priority ? 'sync' : 'async'}
+    fetchpriority={priority ? 'high' : undefined}
+  />
+</picture>
+
+<style>
+  .photo {
+    display: block;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .photo img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+</style>

@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page introuvable"
+  description="Cette page n'existe pas ou a été déplacée."
+>
+  <section class="section not-found">
+    <div class="container">
+      <p class="eyebrow">Erreur 404</p>
+      <h1>Cette page n'existe pas</h1>
+      <p class="lead">
+        Le lien est peut-être ancien, ou l'adresse comporte une faute de
+        frappe. Voici les chemins les plus courts.
+      </p>
+      <div class="not-found__actions">
+        <a class="button button--primary" href="/">Retour à l'accueil</a>
+        <a class="button button--ghost" href="/bilan/">Faire le bilan</a>
+        <a class="button button--ghost" href="/contact/">Contact</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-block: var(--space-2xl);
+  }
+
+  .not-found .lead {
+    max-width: 46ch;
+    margin-top: var(--space-sm);
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-lg);
+  }
+</style>

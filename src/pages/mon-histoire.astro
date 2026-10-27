@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Photo from '../components/Photo.astro';
+import { practitioner } from '../config';
+
+/** Le recit, tel que Florie l'ecrit. */
+const story = [
+  "En 1982, je recevais ma 1ère cliente. C'était une ado, un peu paumée et très rebelle. L'ambiance familiale lui pesait beaucoup. Elle croyait que personne ne l'aimait et elle se posait beaucoup de questions, notamment « pourquoi suis-je là ? » Elle compensait ce vide relationnel avec la nourriture. Tout se faisait en cachette. Elle croyait qu'elle devait être parfaite pour être aimée.",
+  "Elle pensait que mari et enfants allaient combler ses manques. Ensuite, elle se réfugia dans le sport, le seul endroit où elle avait l'impression d'être « à la hauteur » et valorisée. Pendant presque 40 ans, ce fut un combat, épuisant, solitaire.",
+  "En 2010, les pépins de santé sonnent à sa porte : fibrome, hémorragies, faillissent lui coûter la vie. Les résultats physiques sont violents : anémie sévère, grosses carences en vitamines, minéraux, oligo-éléments, protéines, acides gras. Elle s'accroche, s'informe, suit des cours, des formations, des thérapies… tout en restant proche de la nature !",
+];
+---
+
+<BaseLayout
+  title="Mon histoire"
+  description="Florie Deternod : première cliente en 1982, une santé qui bascule en 2010, et le chemin qui m'a menée à accompagner autrement."
+>
+  <PageHero
+    eyebrow="Mon histoire"
+    title="Je suis passée par là avant d'accompagner"
+    lead="Cette démarche ne vient pas d'un manuel. Elle vient de ce que j'ai cherché pour moi, longtemps, avant d'en faire mon métier."
+  />
+
+  <section class="section">
+    <div class="container story">
+      <div class="story__text">
+        {story.map((paragraph) => <p>{paragraph}</p>)}
+
+        <p class="story__reveal">
+          Aujourd'hui, cette femme de 60 ans, resplendissante, radieuse, en
+          pleine santé et complètement rétablie… <strong>c'est MOI !</strong>
+        </p>
+      </div>
+
+      <aside class="story__media">
+        <Photo
+          name="florie-portrait"
+          alt={`${practitioner.fullName}, portrait`}
+          width={460}
+          height={842}
+        />
+        <p class="story__caption">{practitioner.fullName}</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--wash">
+    <div class="container engage">
+      <Photo
+        name="nature-phyto"
+        alt="Fioles de verre contenant des plantes, à côté d'une fiole d'huile"
+        width={642}
+        height={1010}
+        ratio="4 / 3"
+      />
+
+      <div class="stack">
+        <p class="eyebrow">Je m'engage</p>
+        <h2>Vous rendre autonome, pas dépendant</h2>
+        <p>
+          Passionnée par tout ce qui touche la santé depuis mon adolescence, je
+          chemine depuis presque 30 ans avec la nature. Même si, avec mon
+          parcours, j'ai parfois mis l'accent sur le cru et une tendance
+          végétarienne, j'ai mis de côté mon égo lorsqu'un déséquilibre
+          survenait et la remise en question s'est imposée.
+        </p>
+        <p>
+          Ces évolutions m'ont permis de flexibiliser la personnalisation de la
+          prise en charge afin que mes clients puissent réellement gagner en
+          confiance et en autonomie.
+        </p>
+        <blockquote>
+          J'aimerais, en utilisant ce que la nature propose, aider chacun à
+          retrouver la santé, la joie, un poids stable, l'envie, et rayonner.
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--green">
+    <div class="container cta">
+      <div>
+        <h2>Et vous, où en êtes-vous ?</h2>
+        <p class="lead">
+          Trois minutes de questions pour poser le décor, puis quinze minutes
+          ensemble si vous le souhaitez.
+        </p>
+      </div>
+      <a class="button button--gold" href="/bilan/">Faire le bilan</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .story {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  .story__text {
+    max-width: var(--width-prose);
+  }
+
+  .story__text p + p {
+    margin-top: var(--space-sm);
+  }
+
+  /* La chute du recit : c'est la phrase qui doit rester */
+  .story__reveal {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-gold-wash);
+    border-left: 4px solid var(--color-gold);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+  }
+
+  .story__reveal strong {
+    color: var(--color-green-deep);
+  }
+
+  .story__media {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .story__caption {
+    margin-top: var(--space-xs);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .engage {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .engage blockquote {
+    margin: var(--space-sm) 0 0;
+    padding-left: var(--space-md);
+    border-left: 3px solid var(--color-green-leaf);
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+    font-style: italic;
+    color: var(--color-green-deep);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .cta .lead {
+    max-width: 48ch;
+    margin-top: var(--space-2xs);
+  }
+
+  @media (max-width: 60rem) {
+    .story,
+    .engage {
+      grid-template-columns: 1fr;
+    }
+
+    .story__media {
+      position: static;
+      max-width: 20rem;
+    }
+  }
+</style>

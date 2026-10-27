@@ -1,0 +1,207 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { calendlyUrl, contact } from '../config';
+
+const expect = [
+  "Vous me racontez où vous en êtes, en quelques minutes.",
+  "Je vous dis franchement si cette démarche peut vous aider, ou non.",
+  "Si oui, je vous explique comment elle se déroule et ce qu'elle coûte.",
+  "Vous décidez ensuite, tranquillement. Je ne relance pas.",
+];
+---
+
+<BaseLayout
+  title="Réserver 15 minutes"
+  description="Quinze minutes au téléphone, sans frais ni engagement, pour savoir si cette démarche correspond à ce que vous cherchez."
+>
+  <PageHero
+    eyebrow="Rendez-vous découverte"
+    title="Quinze minutes, offertes"
+    lead="Pas une consultation, pas un argumentaire. Un échange court pour savoir si ce que je propose correspond à ce que vous cherchez."
+  />
+
+  <section class="section">
+    <div class:list={['container', 'booking', calendlyUrl && 'booking--calendrier']}>
+      <div class="booking__main">
+        {
+          calendlyUrl ? (
+            <div
+              class="calendly-inline-widget"
+              data-url={`${calendlyUrl}?hide_gdpr_banner=1&primary_color=156839`}
+              data-resize="true"
+              style="min-width:320px;"
+            />
+            <script
+              type="text/javascript"
+              src="https://assets.calendly.com/assets/external/widget.js"
+              async
+            />
+          ) : (
+            <div class="booking__fallback">
+              <h2>La réservation en ligne arrive bientôt</h2>
+              <p>
+                Le calendrier n'est pas encore raccordé. En attendant, le plus
+                simple est d'appeler ou d'écrire : je donne les créneaux
+                disponibles immédiatement.
+              </p>
+              <div class="booking__fallback-actions">
+                <a class="button button--primary" href={`tel:${contact.phoneLink}`}>
+                  {contact.phone}
+                </a>
+                <a class="button button--ghost" href="/contact/">
+                  Écrire un message
+                </a>
+              </div>
+              <p class="booking__hint">
+                Pour activer la réservation en ligne, renseignez votre lien
+                Calendly dans <code>src/config.ts</code>.
+              </p>
+            </div>
+          )
+        }
+      </div>
+
+      <aside class="booking__aside">
+        <h2 class="booking__aside-title">Ce qui va se passer</h2>
+        <ol class="booking__steps">
+          {expect.map((step) => <li>{step}</li>)}
+        </ol>
+
+        <h2 class="booking__aside-title">Vous préférez commencer seul ?</h2>
+        <p class="booking__pitch">
+          Le bilan en ligne prend trois minutes et vous donne un compte rendu
+          immédiat, sans rien demander d'autre.
+        </p>
+        <a class="button button--ghost booking__cta" href="/bilan/">
+          Faire le bilan
+        </a>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .booking {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  /*
+   * Le script de Calendly ecrit la hauteur en style en ligne. Deux raisons de
+   * lui poser un plancher ici, que `min-height` fait respecter quoi qu'il
+   * annonce :
+   *
+   *  - il lui arrive d'annoncer n'importe quoi. Observe en direct : 2 px, et
+   *    le calendrier disparaissait purement et simplement.
+   *  - la hauteur qu'il calcule est celle du calendrier, pas celle de la
+   *    colonne de gauche. Trop juste, cette colonne se met a defiler toute
+   *    seule et le texte sous le lien Zoom passe sous la ligne.
+   */
+  .calendly-inline-widget {
+    min-height: 52rem;
+  }
+
+  /* Empilee, elle demande bien plus : les deux moities l'une sous l'autre */
+  @media (max-width: 56rem) {
+    .calendly-inline-widget {
+      min-height: 78rem;
+    }
+  }
+
+  /*
+   * Avec le calendrier, une seule colonne. Dans une colonne etroite Calendly
+   * empile ses deux moities et reclame plus de mille pixels de haut ; sur
+   * toute la largeur il les met cote a cote et tient dans six cent soixante.
+   * Le rappel du deroule passe donc dessous.
+   */
+  .booking--calendrier {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .booking__fallback {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .booking__fallback h2 {
+    font-size: var(--text-2xl);
+  }
+
+  .booking__fallback p {
+    margin-top: var(--space-sm);
+    color: var(--color-text-muted);
+    max-width: 48ch;
+  }
+
+  .booking__fallback-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+  }
+
+  .booking__hint {
+    margin-top: var(--space-md);
+    font-size: var(--text-xs);
+  }
+
+  .booking__hint code {
+    background: var(--color-surface-alt);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+  }
+
+  .booking__aside {
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+  }
+
+  .booking__aside-title {
+    font-size: var(--text-sm);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-green-leaf);
+    margin-bottom: var(--space-sm);
+  }
+
+  .booking__aside-title ~ .booking__aside-title {
+    margin-top: var(--space-lg);
+  }
+
+  .booking__steps {
+    padding-left: 1.2rem;
+    display: grid;
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .booking__steps::marker {
+    color: var(--color-gold);
+  }
+
+  .booking__pitch {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .booking__cta {
+    margin-top: var(--space-sm);
+    padding: 0.55rem 1.1rem;
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 60rem) {
+    .booking {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

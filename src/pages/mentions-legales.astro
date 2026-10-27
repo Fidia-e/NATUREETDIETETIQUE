@@ -1,0 +1,450 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { contact, ecoIndex, ide, practitioner, site } from '../config';
+
+const sections = [
+  { id: 'editrice', titre: "L'éditrice du site" },
+  { id: 'hebergement', titre: "L'hébergement" },
+  { id: 'exercice', titre: "Ce que je fais, et ce que je ne fais pas" },
+  { id: 'vos-donnees', titre: 'Ce site et vos données' },
+  { id: 'bilan', titre: 'Ce que le bilan en ligne enregistre' },
+  { id: 'destinataires', titre: 'Qui reçoit vos données, et combien de temps' },
+  { id: 'vos-droits', titre: 'Vos droits' },
+  { id: 'securite', titre: 'Sécurité' },
+  { id: 'propriete', titre: 'La propriété des contenus' },
+  { id: 'liens', titre: "Les liens vers l'extérieur" },
+  { id: 'eco-conception', titre: 'Un site éco-conçu' },
+  { id: 'accessibilite', titre: 'Accessibilité' },
+  { id: 'conception', titre: 'Conception' },
+];
+
+const maj = new Date(ecoIndex.measuredOn).toLocaleDateString('fr-FR', {
+  month: 'long',
+  year: 'numeric',
+});
+const score = ecoIndex.worstScore.toLocaleString('fr-FR');
+---
+
+<BaseLayout
+  title="Mentions légales"
+  description="Qui édite ce site, qui l'héberge, ce qu'il fait de vos données et ce qu'il n'en fait pas, ce qu'il pèse, et ce qu'il ne fait pas."
+>
+  <PageHero
+    eyebrow="Informations légales"
+    title="Mentions légales."
+    lead="Qui édite ce site, qui l'héberge, ce qu'il fait de vos données et ce qu'il n'en fait pas, ce qu'il pèse, et ce qu'il ne fait pas."
+  />
+
+  <section class="section">
+    <div class="container legal-shell">
+      <nav class="sommaire" aria-label="Sur cette page" data-sommaire>
+        <p class="sommaire__titre">Sur cette page</p>
+        <ol>
+          {
+            sections.map((s) => (
+              <li>
+                <a href={`#${s.id}`}>{s.titre}</a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <div class="legal">
+        <p class="legal__maj">Dernière mise à jour : {maj}.</p>
+
+      <h2 id="editrice">L'éditrice du site</h2>
+      <p>
+        {site.name} est édité par {practitioner.fullName}, établie
+        {' '}{contact.address.street}, {contact.address.zip}&nbsp;{
+          contact.address.city
+        }, canton de {contact.address.canton}, Suisse. Téléphone :
+        {' '}<a href={`tel:${contact.phoneLink}`}>{contact.phone}</a>. Pour
+        écrire : <a href={`mailto:${contact.email}`}>{contact.email}</a>.
+      </p>
+      <p>
+        Responsable de la publication : {practitioner.fullName}. Numéro IDE :
+        {' '}<strong>{ide}</strong>.
+      </p>
+      <p>
+        Ce site ne vend rien et n'encaisse rien. Les consultations se règlent
+        de la main à la main, et les produits s'achètent chez leurs fabricants,
+        à leurs conditions.
+      </p>
+
+      <h2 id="hebergement">L'hébergement</h2>
+      <p>
+        Ce site est hébergé par <strong>o2switch</strong>, 222-224 boulevard
+        Gustave Flaubert, 63000 Clermont-Ferrand, France. Téléphone :
+        04 44 44 60 40. Les serveurs sont en France.
+      </p>
+
+      <h2 id="exercice">Ce que je fais, et ce que je ne fais pas</h2>
+      <p>
+        <span class="a-completer">
+          À compléter : formations suivies, titre exact utilisé, et le cas
+          échéant numéro d'agrément ASCA ou RME
+        </span>.
+      </p>
+      <p>
+        L'accompagnement proposé relève de la nutrition et de la santé
+        naturelle. Il ne pose aucun diagnostic, ne prescrit rien, et ne
+        remplace ni une consultation ni un traitement médical. Les contenus de
+        ce site, les articles comme le bilan en ligne, ont une vocation
+        informative et rien de plus. En cas de symptôme qui dure, consultez
+        votre médecin. En cas d'urgence, appelez le 144.
+      </p>
+
+      <h2 id="vos-donnees">Ce site et vos données</h2>
+      <p>
+        Ce site ne dépose aucun cookie, n'utilise aucun outil de mesure
+        d'audience et ne pratique aucun profilage. C'est pourquoi vous n'y
+        voyez aucune bannière de consentement : il n'y a rien à consentir.
+      </p>
+      <p>
+        Les polices de caractères sont servies depuis ce serveur, pas depuis
+        celui d'un tiers. La seule exception est la vidéo de présentation, dont
+        le lecteur appartient à Zinzino : il ne se charge qu'au moment où vous
+        cliquez pour la lancer. Tant que vous ne la lancez pas, rien n'est
+        transmis à personne.
+      </p>
+      <p>
+        <span class="a-completer">
+          À compléter selon l'outil de mesure d'audience retenu. En l'absence
+          d'outil, indiquer qu'aucun cookie de suivi n'est déposé.
+        </span>
+      </p>
+      <p>
+        Si vous m'écrivez, ce que vous saisissez sert à vous répondre, et à
+        rien d'autre. Ces informations ne sont ni cédées, ni vendues, ni
+        utilisées à des fins publicitaires. Elles sont conservées vingt-quatre
+        mois après le dernier échange, puis supprimées.
+      </p>
+
+      <h2 id="bilan">Ce que le bilan en ligne enregistre</h2>
+      <p>
+        Vos réponses au bilan sont calculées <strong>dans votre navigateur</strong>.
+        Tant que vous n'avez pas saisi votre adresse et coché la case de
+        consentement, rien ne part. Vous pouvez lire votre compte rendu puis
+        fermer la page : il n'en restera aucune trace.
+      </p>
+      <p>
+        Si vous demandez à le recevoir, sont transmis votre prénom, votre
+        adresse électronique, vos réponses et le contexte que vous avez
+        renseigné. Ces réponses portent sur votre santé : ce sont des
+        <strong> données sensibles</strong> au sens de l'article 5 let. c de la
+        loi fédérale sur la protection des données. Leur traitement repose sur
+        votre consentement explicite, au sens de l'article 6 al. 7. Elles
+        servent à préparer notre échange, et à rien d'autre. Un bilan resté
+        sans suite est supprimé au bout de douze mois.
+      </p>
+
+      <h2 id="destinataires">Qui reçoit vos données, et combien de temps</h2>
+      <p>
+        Vos données sont destinées à la seule responsable du traitement. Elles
+        peuvent transiter par les prestataires techniques nécessaires au
+        fonctionnement du site :
+        <strong>o2switch</strong> pour l'hébergement, en France, et
+        {' '}<strong>Calendly LLC</strong> pour la prise de rendez-vous, aux
+        États-Unis. Réserver un créneau se fait dans un calendrier chargé
+        depuis leurs serveurs : les informations que vous y saisissez, nom,
+        adresse e-mail et horaire choisi, leur sont confiées en même temps
+        qu'à moi, et leur propre politique de confidentialité s'y applique.
+        {' '}<span class="a-completer">À compléter : le service d'envoi
+        d'e-mails, une fois le formulaire de contact raccordé</span>. Lorsqu'un
+        de ces prestataires est établi hors de Suisse, le transfert n'a lieu
+        que vers un pays reconnu comme offrant une protection adéquate, ou sous
+        garanties contractuelles appropriées (art. 16 et 17 LPD). Rien n'est
+        transmis à des fins commerciales.
+      </p>
+      <p>
+        Un bilan en ligne resté sans suite est supprimé au bout de douze mois.
+        Un dossier d'accompagnement est conservé pendant la durée du suivi,
+        puis archivé le temps nécessaire aux obligations légales. Les messages
+        de contact sont gardés vingt-quatre mois après le dernier échange.
+      </p>
+
+      <h2 id="vos-droits">Vos droits</h2>
+      <p>
+        La responsable du traitement est {practitioner.fullName}. Vous pouvez
+        demander à consulter vos données, les corriger, les faire supprimer ou
+        les récupérer, en écrivant à
+        {' '}<a href={`mailto:${contact.email}`}>{contact.email}</a>. Vous
+        pouvez retirer votre consentement à tout moment, sans avoir à vous
+        justifier. Une réponse vous est apportée sous trente jours.
+      </p>
+      <p>
+        Si elle ne vous convient pas, vous pouvez vous adresser au Préposé
+        fédéral à la protection des données et à la transparence
+        {' '}(<a
+          href="https://www.edoeb.admin.ch"
+          target="_blank"
+          rel="noopener noreferrer">edoeb.admin.ch</a
+        >). Si vous résidez dans l'Union européenne, le RGPD peut s'appliquer
+        en parallèle : les mêmes droits vous sont alors reconnus dans les deux
+        cadres.
+      </p>
+
+      <h2 id="securite">Sécurité</h2>
+      <p>
+        Les échanges avec ce site sont chiffrés. Les données de santé que vous
+        transmettez sont conservées sur
+        <span class="a-completer">préciser le support : messagerie
+        professionnelle, dossier chiffré, ordinateur protégé par mot de
+        passe</span>, et ne sont accessibles qu'à la responsable du traitement.
+      </p>
+
+      <h2 id="propriete">La propriété des contenus</h2>
+      <p>
+        « {site.name} » est le nom sous lequel l'activité est exercée, avec son
+        logo. Les textes, les illustrations et les documents publiés ici
+        appartiennent à leur autrice, ou sont publiés avec l'accord de leurs
+        auteurs. Les dessins qui illustrent le site sont des créations
+        originales. Toute reproduction, même partielle, est soumise à
+        autorisation préalable, conformément à la loi fédérale sur le droit
+        d'auteur.
+      </p>
+
+      <h2 id="liens">Les liens vers l'extérieur</h2>
+      <p>
+        Ce site renvoie vers des partenaires, Zinzino et Sonatec notamment, et
+        vers des boutiques. Recommander n'est pas garantir : je n'édite aucune
+        de ces pages et je ne réponds pas de leur contenu. Certains de ces
+        liens sont des liens de partenariat, et une commande passée depuis
+        ceux-là peut donner lieu à une rémunération. C'est écrit ici pour que
+        vous le sachiez avant de cliquer, pas après.
+      </p>
+      <p>
+        Ce qui est présenté comme la démarche d'un partenaire est présenté
+        comme tel, et <a href="/l-eau/">distingué de ce qui est établi</a>.
+      </p>
+
+      <h2 id="eco-conception">Un site éco-conçu</h2>
+      <p>
+        Un site sobre, parce que le numérique n'est pas immatériel. Il pèse
+        aujourd'hui entre 3 et 4 % des émissions mondiales de gaz à effet de
+        serre, à peu près autant que le transport aérien. L'ADEME et l'Arcep
+        ont établi que le plus gros de cette empreinte ne vient pas de
+        l'électricité des serveurs, mais de la fabrication des appareils.
+      </p>
+      <p>
+        Calculée selon la méthode <strong>EcoIndex</strong> de
+        {' '}<a
+          href="https://www.ecoindex.fr/"
+          target="_blank"
+          rel="noopener noreferrer">GreenIT</a
+        >, qui combine le nombre d'éléments de la page, le nombre de requêtes
+        et le poids transféré, chaque page de ce site obtient la note
+        {' '}<strong>{ecoIndex.grade}</strong>, la moins bien classée à
+        {' '}{score} sur 100.
+      </p>
+      <p class="legal__note">
+        Cette mesure porte sur ce site tel qu'il est produit, et n'inclut pas
+        le calendrier de réservation, chargé depuis les serveurs de Calendly :
+        la page de rendez-vous est donc en réalité plus lourde que sa note ne
+        le dit. La note constatée en ligne dépend aussi de votre hébergeur,
+        notamment de la compression et de la durée de cache qu'il applique.
+      </p>
+
+      <h2 id="accessibilite">Accessibilité</h2>
+      <p>
+        Ce site est conçu pour rester consultable au clavier et avec un lecteur
+        d'écran, avec des contrastes suffisants et des textes qui grossissent
+        sans casser la mise en page. Le bilan se parcourt entièrement au
+        clavier, et chaque image porte sa description.
+      </p>
+      <p>
+        Si vous rencontrez une difficulté d'accès à une information,
+        signalez-la à <a href={`mailto:${contact.email}`}>{contact.email}</a> :
+        ce sera corrigé.
+      </p>
+
+      <h2 id="conception">Conception</h2>
+      <p>
+        Une création sur-mesure, pensée et codée par
+        {' '}<a href="https://sacreemome.com/" target="_blank" rel="noopener"
+          >Maison Sacrée Môme</a
+        >.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Marque la section en cours de lecture dans le sommaire. L'etat passe par
+    // `aria-current`, pour que les lecteurs d'ecran l'annoncent aussi.
+    //
+    // On calcule depuis la position des titres plutot que par intersection :
+    // une fenetre d'observation finit toujours par ne contenir aucun titre
+    // entre deux sections longues, et plus rien n'est marque.
+    const sommaire = document.querySelector<HTMLElement>('[data-sommaire]');
+    const titres = [...document.querySelectorAll<HTMLElement>('.legal > h2[id]')];
+
+    if (sommaire && titres.length) {
+      const liens = new Map(
+        [...sommaire.querySelectorAll<HTMLAnchorElement>('a')].map((a) => [
+          a.hash.slice(1),
+          a,
+        ])
+      );
+
+      // Juste sous l'en-tete collant : le titre qui vient de passer dessous
+      // est celui qu'on est en train de lire.
+      const SEUIL = 140;
+      let courant = '';
+
+      const marquer = () => {
+        const passes = titres.filter(
+          (t) => t.getBoundingClientRect().top <= SEUIL
+        );
+        const actif = (passes.at(-1) ?? titres[0]).id;
+        if (actif === courant) return;
+
+        liens.get(courant)?.removeAttribute('aria-current');
+        liens.get(actif)?.setAttribute('aria-current', 'true');
+        courant = actif;
+      };
+
+      let planifie = false;
+      const aLaProchaineImage = () => {
+        if (planifie) return;
+        planifie = true;
+        requestAnimationFrame(() => {
+          planifie = false;
+          marquer();
+        });
+      };
+
+      addEventListener('scroll', aLaProchaineImage, { passive: true });
+      addEventListener('resize', aLaProchaineImage, { passive: true });
+      marquer();
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  /*
+   * Deux colonnes : le sommaire reste visible pendant qu'on lit, le texte
+   * garde sa mesure. Sous 64 rem il repasse au-dessus du contenu, sans
+   * collage, pour ne pas manger la hauteur d'un ecran de telephone.
+   */
+  .legal-shell {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  .legal {
+    max-width: 62ch;
+  }
+
+  .legal__maj {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-lg);
+  }
+
+  .sommaire {
+    position: sticky;
+    /* L'en-tete colle en haut : le sommaire se range juste en dessous */
+    top: 6.5rem;
+    padding: var(--space-md);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+  }
+
+  .sommaire__titre {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-green-leaf);
+    margin-bottom: var(--space-sm);
+  }
+
+  .sommaire ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: sommaire;
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .sommaire li {
+    counter-increment: sommaire;
+  }
+
+  .sommaire a {
+    display: grid;
+    grid-template-columns: 1.4em 1fr;
+    gap: var(--space-2xs);
+    padding: 0.35rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    line-height: 1.35;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .sommaire a::before {
+    content: counter(sommaire) '.';
+    color: var(--color-gold);
+    font-weight: 700;
+  }
+
+  .sommaire a:hover {
+    background: color-mix(in srgb, var(--color-green-wash) 70%, transparent);
+    color: var(--color-green-deep);
+  }
+
+  /* La section en cours de lecture, annoncee aussi par les lecteurs d'ecran */
+  .sommaire a[aria-current='true'] {
+    background: var(--color-surface);
+    color: var(--color-green-deep);
+    font-weight: 700;
+    box-shadow: inset 2px 0 0 var(--color-gold);
+  }
+
+  .legal > h2 {
+    font-size: var(--text-2xl);
+    margin-top: var(--space-xl);
+    /* Les ancres ne doivent pas se cacher sous l'en-tete collant */
+    scroll-margin-top: 6rem;
+  }
+
+  .legal > p {
+    margin-top: var(--space-sm);
+    color: var(--color-text-muted);
+  }
+
+  .legal strong {
+    color: var(--color-green-deep);
+  }
+
+  .legal__note {
+    font-size: var(--text-sm);
+  }
+
+  /* Repere visuel sur les informations qui restent a fournir */
+  .a-completer {
+    background: var(--color-gold-wash);
+    border-bottom: 1px dashed var(--color-gold);
+    padding: 0 0.25rem;
+    font-style: italic;
+  }
+
+  @media (max-width: 64rem) {
+    .legal-shell {
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+
+    .sommaire {
+      position: static;
+    }
+  }
+</style>

@@ -1,0 +1,162 @@
+---
+/**
+ * Lecteur tiers chargé seulement au clic.
+ *
+ * Une iframe posée directement dans la page télécharge le lecteur et ses
+ * scripts publicitaires à chaque visite, qu'on regarde la vidéo ou non. La
+ * façade ci-dessous ne coûte rien, et garantit qu'aucune donnée ne part vers
+ * le tiers tant que le visiteur n'a pas décidé de lancer la lecture.
+ */
+interface Props {
+  src: string;
+  title: string;
+  /** Durée affichée sur la vignette, par exemple "2 min 21". */
+  duration?: string;
+  label?: string;
+}
+
+const {
+  src,
+  title,
+  duration,
+  label = 'Lancer la vidéo',
+} = Astro.props;
+---
+
+<div class="video" data-video data-src={src} data-title={title}>
+  <button class="video__cover" type="button" data-video-play>
+    <span class="video__icon" aria-hidden="true">
+      <svg viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="30" />
+        <path d="M26 20l20 12-20 12z" />
+      </svg>
+    </span>
+    <span class="video__label">{label}</span>
+    {duration && <span class="video__duration">{duration}</span>}
+    <span class="video__notice">
+      Le lecteur est fourni par un tiers et ne se charge qu'à cet instant.
+    </span>
+  </button>
+</div>
+
+<style>
+  .video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(
+      155deg,
+      var(--color-green-leaf),
+      var(--color-green-deep)
+    );
+  }
+
+  .video__cover {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-2xs);
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 0;
+    background: transparent;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .video__icon svg {
+    width: 4.5rem;
+    height: 4.5rem;
+    transition: transform var(--transition);
+  }
+
+  .video__icon circle {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+  }
+
+  .video__icon path {
+    fill: var(--color-gold);
+  }
+
+  .video__cover:hover .video__icon svg {
+    transform: scale(1.06);
+  }
+
+  .video__label {
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+    font-weight: 800;
+    margin-top: var(--space-2xs);
+  }
+
+  .video__duration {
+    font-size: var(--text-sm);
+    color: var(--color-gold);
+    font-weight: 700;
+  }
+
+  .video__notice {
+    max-width: 32ch;
+    margin-top: var(--space-2xs);
+    font-size: var(--text-xs);
+    color: #cfe0d3;
+  }
+
+  .video :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (max-width: 40rem) {
+    .video__cover {
+      /* Le cadre 16/9 ne fait plus que 190 px de haut : on resserre tout */
+      gap: 0;
+      padding: var(--space-xs);
+    }
+
+    .video__icon svg {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .video__label {
+      margin-top: 0;
+      font-size: var(--text-base);
+    }
+
+    .video__notice {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  for (const frame of document.querySelectorAll<HTMLElement>('[data-video]')) {
+    const button = frame.querySelector<HTMLButtonElement>('[data-video-play]');
+    const { src, title } = frame.dataset;
+    if (!button || !src) continue;
+
+    button.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = src;
+      iframe.title = title ?? '';
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+      iframe.allowFullscreen = true;
+
+      frame.replaceChildren(iframe);
+      // Le visiteur a cliqué pour regarder : on lui rend le focus sur le lecteur
+      iframe.focus();
+    });
+  }
+</script>

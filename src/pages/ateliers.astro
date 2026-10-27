@@ -1,0 +1,239 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Photo from '../components/Photo.astro';
+
+const home = [
+  {
+    title: 'Les bases qui changent tout',
+    duration: '2 h 30',
+    text: "Tailler, saisir, assaisonner. Les cinq gestes qui séparent un légume triste d'un légume qu'on a envie de finir. Rien de technique, tout de reproductible.",
+  },
+  {
+    title: 'Cinq dîners en deux heures',
+    duration: '2 h 30',
+    text: "On cuisine des briques plutôt que des plats : un féculent, deux légumes, deux protéines, deux sauces. Vous repartez avec vos boîtes et les cinq assemblages de la semaine.",
+  },
+  {
+    title: 'Le poisson sans appréhension',
+    duration: '2 h',
+    text: "Choisir, conserver, cuire sans dessécher, et savoir quoi prendre quand le budget serre. L'atelier qui suit logiquement un BalanceTest.",
+  },
+  {
+    title: 'Petits-déjeuners qui tiennent',
+    duration: '1 h 30',
+    text: "Quatre formules préparées ensemble, testées sur place, pour en finir avec la fringale de 11 heures. Le plus court des ateliers, et souvent le plus utile.",
+  },
+];
+
+---
+
+<BaseLayout
+  title="Ateliers cuisine"
+  description="Ateliers cuisine en petit groupe à Matran : gestes de base, menus de la semaine, poisson, petits-déjeuners qui tiennent."
+>
+  <PageHero
+    eyebrow="Ateliers"
+    title="« Faut cuisiner » : la phrase qui bloque tout"
+    lead="Beaucoup de gens savent parfaitement ce qu'il faudrait manger. Ce qui les arrête, c'est le passage à la casserole. Les ateliers sont faits pour franchir ce pas, en groupe et sans jugement."
+  />
+
+  <section class="section">
+    <div class="container studio">
+      <div class="studio__text">
+        <p class="eyebrow">Comment ça se passe</p>
+        <h2>Chez moi, autour du plan de travail</h2>
+        <p class="lead">
+          Pas de salle louée ni de matériel de professionnel : on cuisine dans
+          ma cuisine, à Matran, avec les ustensiles que tout le monde a chez
+          soi. C'est le format le plus efficace pour les gestes, parce que je
+          peux corriger une main au moment où elle hésite.
+        </p>
+        <p>
+          On cuisine, on goûte, on mange ensemble ce qu'on vient de préparer,
+          et la conversation fait au moins la moitie du travail. Ce que vous
+          apprenez là, vous le refaites chez vous le lendemain, sans rien
+          racheter.
+        </p>
+      </div>
+
+      <dl class="specs">
+        <div class="spec">
+          <dt>Le groupe</dt>
+          <dd>6 personnes</dd>
+          <p>Au maximum, pour que chacun ait sa planche.</p>
+        </div>
+        <div class="spec">
+          <dt>Les ingrédients</dt>
+          <dd>Tout est fourni</dd>
+          <p>Courses et tabliers compris, vous venez les mains vides.</p>
+        </div>
+        <div class="spec">
+          <dt>En repartant</dt>
+          <dd>Vos préparations</dd>
+          <p>Dans vos boîtes, avec les fiches de ce qu'on a fait.</p>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--wash">
+    <div class="container">
+      <p class="eyebrow">Au programme</p>
+      <h2>Les quatre ateliers</h2>
+      <div class="grid grid--2 workshops">
+        {
+          home.map((item) => (
+            <article class="workshop">
+              <p class="workshop__duration">{item.duration}</p>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container signup">
+      <div class="stack">
+        <p class="eyebrow">Inscription</p>
+        <h2>Les dates arrivent par e-mail</h2>
+        <p>
+          Les ateliers s'ouvrent au fil des saisons, six places à chaque fois.
+          Dites-moi lequel vous intéresse : je vous préviens dès qu'une date est
+          posée, sans autre envoi entre-temps.
+        </p>
+        <div class="signup__actions">
+          <a class="button button--primary" href="/contact/">
+            Me signaler un atelier
+          </a>
+          <a class="button button--ghost" href="/rendez-vous/">
+            En parler en 15 min
+          </a>
+        </div>
+      </div>
+
+      <Photo
+        name="atelier-cuisine"
+        alt="Trois personnes découpent des légumes autour d'une grande table de cuisine"
+        width={1100}
+        height={732}
+        ratio="3 / 2"
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ----------------------------------------------------------------------
+     Un seul format d'atelier : le texte porte, les caracteristiques se
+     rangent dessous en une ligne de trois, separees par un filet.
+     ---------------------------------------------------------------------- */
+  .studio__text {
+    max-width: 60ch;
+  }
+
+  .studio__text h2 + p {
+    margin-top: var(--space-sm);
+  }
+
+  .studio__text p + p {
+    margin-top: var(--space-sm);
+    color: var(--color-text-muted);
+  }
+
+  .specs {
+    display: grid;
+    /*
+     * 13rem et non 15 : a 768 px les trois tenaient sinon a deux, et la
+     * troisieme restait seule sur sa ligne. Elles sont courtes, elles
+     * supportent la colonne etroite.
+     */
+    grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+    gap: var(--space-lg);
+    margin: var(--space-xl) 0 0;
+  }
+
+  .spec {
+    padding-top: var(--space-sm);
+    border-top: 2px solid var(--color-gold);
+  }
+
+  .spec dt {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-green-leaf);
+  }
+
+  .spec dd {
+    margin: var(--space-2xs) 0 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    line-height: 1.2;
+    color: var(--color-green-deep);
+  }
+
+  .spec p {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .workshops {
+    margin-top: var(--space-lg);
+  }
+
+  .workshop {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 4px solid var(--color-green-leaf);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .workshop__duration {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .workshop h3 {
+    font-size: var(--text-lg);
+  }
+
+  .workshop p {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .signup {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .signup__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+  }
+
+  @media (max-width: 60rem) {
+    .signup {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

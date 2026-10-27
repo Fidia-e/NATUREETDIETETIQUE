@@ -1,0 +1,285 @@
+---
+/**
+ * Formulaire de contact.
+ *
+ * Il fonctionne sans JavaScript des qu'une destination est configuree : le
+ * navigateur poste directement sur elle. Le script ne fait qu'ameliorer
+ * l'experience, en envoyant en arriere-plan et en affichant la reponse sans
+ * quitter la page.
+ */
+import { contact, contactEndpoint } from '../config';
+
+const sujets = [
+  'Le bilan offert',
+  'Un accompagnement',
+  'Les ateliers cuisine',
+  'Autre sujet',
+];
+---
+
+<form
+  class="contact-form"
+  data-contact
+  method="post"
+  action={contactEndpoint ?? undefined}
+  data-endpoint={contactEndpoint ?? ''}
+  data-fallback={contact.email}
+>
+  <div class="contact-form__grid">
+    <label class="field">
+      <span>Prénom <abbr title="obligatoire">*</abbr></span>
+      <input type="text" name="prenom" autocomplete="given-name" required />
+    </label>
+
+    <label class="field">
+      <span>Nom <abbr title="obligatoire">*</abbr></span>
+      <input type="text" name="nom" autocomplete="family-name" required />
+    </label>
+
+    <label class="field">
+      <span>Adresse e-mail <abbr title="obligatoire">*</abbr></span>
+      <input type="email" name="email" autocomplete="email" required />
+    </label>
+
+    <label class="field">
+      <span>Téléphone</span>
+      <input type="tel" name="telephone" autocomplete="tel" />
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Votre demande porte sur</span>
+    <select name="sujet">
+      {sujets.map((s) => <option value={s}>{s}</option>)}
+    </select>
+  </label>
+
+  <label class="field">
+    <span>Votre message <abbr title="obligatoire">*</abbr></span>
+    <textarea
+      name="message"
+      rows="6"
+      required
+      placeholder="Dites-moi en quelques lignes où vous en êtes : cela me permet de vous répondre utilement dès le premier message."
+    ></textarea>
+  </label>
+
+  {/* Piege a robots : un champ que personne ne voit et que seuls les
+      automates remplissent. Rien n'est envoye s'il est rempli. */}
+  <div class="contact-form__piege" aria-hidden="true">
+    <label>
+      Ne remplissez pas ce champ
+      <input type="text" name="site" tabindex="-1" autocomplete="off" />
+    </label>
+  </div>
+
+  <label class="consent">
+    <input type="checkbox" name="consentement" required />
+    <span>
+      J'accepte que ces informations soient utilisées pour me répondre. Elles
+      ne servent à rien d'autre et ne sont transmises à personne.{' '}
+      <a href="/mentions-legales/#vos-donnees">En savoir plus</a>
+    </span>
+  </label>
+
+  <div class="contact-form__pied">
+    <button class="button button--gold" type="submit" data-contact-submit>
+      Envoyer le message
+    </button>
+    <p class="contact-form__note">
+      Réponse sous 48 heures ouvrées. Pour une urgence médicale, appelez le 144.
+    </p>
+  </div>
+
+  <p class="contact-form__status" data-contact-status role="status" hidden></p>
+</form>
+
+<style>
+  .contact-form {
+    display: grid;
+    gap: var(--space-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .contact-form__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+    gap: var(--space-md);
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+  }
+
+  .field > span {
+    font-family: var(--font-ui);
+    font-weight: 700;
+  }
+
+  .field abbr {
+    color: var(--color-gold);
+    text-decoration: none;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    font-family: inherit;
+    font-size: var(--text-base);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    border-color: var(--color-green-deep);
+  }
+
+  /* Hors de l'ecran plutot que `display: none` : certains robots ignorent
+     les champs masques, bien moins ceux qui sont simplement deplaces. */
+  .contact-form__piege {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs);
+    align-items: start;
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+
+  .consent input {
+    margin-top: 0.2em;
+    accent-color: var(--color-green-deep);
+  }
+
+  .contact-form__pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm) var(--space-md);
+  }
+
+  .contact-form__note {
+    flex: 1 1 16rem;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .contact-form__status {
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+  }
+
+  .contact-form__status[data-state='ok'] {
+    background: var(--color-green-wash);
+    color: var(--color-green-deep);
+    font-weight: 600;
+  }
+
+  .contact-form__status[data-state='error'] {
+    background: #fbeee6;
+    color: #a8341a;
+  }
+
+  @media (max-width: 40rem) {
+    .contact-form {
+      padding: var(--space-md);
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-contact-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-contact-submit]')!;
+    const endpoint = form.dataset.endpoint || null;
+    const fallback = form.dataset.fallback!;
+
+    const dire = (etat: 'ok' | 'error' | 'pending', texte: string) => {
+      status.hidden = false;
+      status.dataset.state = etat;
+      status.textContent = texte;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      if (!form.reportValidity()) return;
+
+      const data = new FormData(form);
+
+      // Le piege est rempli : c'est un robot, on laisse croire que c'est parti
+      if (String(data.get('site') ?? '').trim()) {
+        event.preventDefault();
+        dire('ok', 'Merci, votre message est parti.');
+        return;
+      }
+
+      // Sans destination configuree, on passe par la messagerie du visiteur
+      if (!endpoint) {
+        event.preventDefault();
+        const lignes = [
+          `Prénom : ${data.get('prenom')}`,
+          `Nom : ${data.get('nom')}`,
+          `E-mail : ${data.get('email')}`,
+          `Téléphone : ${data.get('telephone') || '—'}`,
+          `Sujet : ${data.get('sujet')}`,
+          '',
+          String(data.get('message') ?? ''),
+        ];
+        window.location.href = `mailto:${fallback}?subject=${encodeURIComponent(
+          `Message depuis le site : ${data.get('sujet')}`
+        )}&body=${encodeURIComponent(lignes.join('\n'))}`;
+        dire(
+          'ok',
+          'Votre messagerie vient de s’ouvrir avec le message : il ne reste qu’à envoyer.'
+        );
+        return;
+      }
+
+      // Destination configuree : on envoie en arriere-plan pour garder la page
+      event.preventDefault();
+      submit.disabled = true;
+      dire('pending', 'Envoi en cours…');
+
+      try {
+        const reponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: data,
+        });
+        if (!reponse.ok) throw new Error(String(reponse.status));
+
+        form.reset();
+        dire('ok', 'Merci, votre message est parti. Je vous réponds sous 48 heures ouvrées.');
+      } catch {
+        dire('error', `L’envoi a échoué. Écrivez-moi directement à ${fallback}.`);
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

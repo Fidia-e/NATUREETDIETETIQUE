@@ -1,0 +1,19 @@
+---
+/**
+ * Note EcoIndex du site, en simple mention de pied de page.
+ * La valeur n'est pas decorative : elle est calculee par `npm run eco` sur le
+ * site construit, et un test echoue si une page descend sous la note annoncee.
+ */
+import { ecoIndex } from '../config';
+---
+
+<a class="eco" href="/mentions-legales/#eco-conception">
+  Site éco-conçu - EcoIndex <strong>{ecoIndex.grade}</strong>
+</a>
+
+<style>
+  .eco strong {
+    color: var(--color-gold);
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,606 @@
+---
+/**
+ * Bilan en ligne : questionnaire en sept etapes, compte rendu immediat,
+ * puis envoi par e-mail et proposition de rendez-vous.
+ *
+ * Les reponses sont traitees dans le navigateur. Rien n'est transmis tant que
+ * la personne n'a pas saisi son adresse et coche le consentement.
+ */
+import { steps, TOTAL_STEPS } from '../lib/quiz-data';
+
+---
+
+<div class="funnel" data-funnel>
+  <!-- Progression -->
+  <div class="funnel__progress">
+    <p class="funnel__counter">
+      Étape <span data-funnel-current>1</span> sur {TOTAL_STEPS}
+    </p>
+    <div
+      class="funnel__bar"
+      role="progressbar"
+      aria-label="Progression du bilan"
+      aria-valuemin="0"
+      aria-valuemax={TOTAL_STEPS}
+      aria-valuenow="1"
+      data-funnel-bar
+    >
+      <span data-funnel-fill></span>
+    </div>
+  </div>
+
+  <form class="funnel__form" data-funnel-form novalidate>
+    {
+      steps.map((step, index) => (
+        <section class="funnel__step" data-funnel-step={index} hidden={index !== 0}>
+          <h2 class="funnel__title">{step.title}</h2>
+          <p class="funnel__intro">{step.intro}</p>
+
+          {step.questions.map((question) => (
+            <fieldset class="question">
+              <legend>{question.label}</legend>
+              <div class="question__choices">
+                {question.choices.map((choice, choiceIndex) => (
+                  <label class="choice">
+                    <input
+                      type="radio"
+                      name={question.id}
+                      value={choiceIndex}
+                      data-axis={question.axis}
+                      data-score={choice.score}
+                      data-label={choice.label}
+                      required
+                    />{choice.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </section>
+      ))
+    }
+
+    <!-- Avant-derniere etape : le contexte, qui n'entre pas dans le score -->
+    <section class="funnel__step" data-funnel-step={steps.length} hidden>
+      <h2 class="funnel__title">Votre contexte</h2>
+      <p class="funnel__intro">
+        Ces informations ne changent pas votre compte rendu. Elles me permettent
+        de préparer notre échange si vous décidez de le réserver.
+      </p>
+
+      <fieldset class="question">
+        <legend>Vous êtes</legend>
+        <div class="question__choices question__choices--inline">
+          {['Une femme', 'Un homme', 'Je préfère ne pas répondre'].map((label, i) => (
+            <label class="choice">
+              <input type="radio" name="profil" value={i} data-label={label} />{label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div class="fields">
+        <label class="field">
+          <span>Âge</span>
+          <input type="number" name="age" min="12" max="110" inputmode="numeric" />
+        </label>
+        <label class="field">
+          <span>Taille (cm)</span>
+          <input type="number" name="taille" min="100" max="230" inputmode="numeric" />
+        </label>
+        <label class="field">
+          <span>Poids (kg)</span>
+          <input type="number" name="poids" min="30" max="300" inputmode="numeric" />
+        </label>
+      </div>
+
+      <fieldset class="question">
+        <legend>Avez-vous des antécédents cardiovasculaires ?</legend>
+        <div class="question__choices question__choices--inline">
+          {['Non', 'Oui', 'Je ne sais pas'].map((label, i) => (
+            <label class="choice">
+              <input
+                type="radio"
+                name="cardio"
+                value={i}
+                data-label={label}
+                data-flag={label === 'Oui' ? 'cardio' : undefined}
+              />{label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <label class="field field--wide">
+        <span>Avez-vous eu une ou plusieurs opérations ? Lesquelles ?</span>
+        <textarea name="operations" rows="2" placeholder="Facultatif"></textarea>
+      </label>
+
+      <label class="field field--wide">
+        <span>Suivez-vous une alimentation particulière ?</span>
+        <textarea
+          name="alimentation"
+          rows="2"
+          placeholder="Sans gluten, végétarienne, allergies… Facultatif"></textarea>
+      </label>
+    </section>
+
+    <div class="funnel__actions">
+      <button class="button button--ghost" type="button" data-funnel-back hidden>
+        Précédent
+      </button>
+      <button class="button button--primary" type="button" data-funnel-next disabled>
+        Continuer
+      </button>
+    </div>
+
+    <p class="funnel__error" data-funnel-error role="alert" hidden>
+      Merci de répondre à toutes les questions de cette étape.
+    </p>
+  </form>
+
+  <!-- Derniere etape : le compte rendu -->
+  <section class="report" data-funnel-report hidden tabindex="-1">
+    <p class="eyebrow">Votre compte rendu</p>
+    <h2 class="report__title" data-report-title></h2>
+    <p class="report__intro" data-report-intro></p>
+
+    <ul class="report__axes" data-report-axes></ul>
+
+    <div class="report__flag" data-report-cardio hidden>
+      <p>
+        Vous avez indiqué des antécédents cardiovasculaires. Parlez-en à votre
+        médecin avant toute modification de votre alimentation ou prise de
+        compléments : nous travaillerons en complément de son suivi, jamais à
+        sa place.
+      </p>
+    </div>
+
+    {/* Conclusion propre au profil, ecrite par le controleur */}
+    <div class="report__solution">
+      <h3>Ce qu'on peut en faire</h3>
+      <div data-report-conclusion></div>
+    </div>
+
+    <!-- Demande de rappel, apres le compte rendu et jamais avant -->
+    <form class="capture" data-capture novalidate>
+      <h3>Si vous souhaitez qu'on en discute</h3>
+      <p class="capture__lead">
+        Laissez-moi vos coordonnées, je vous rappelle. Vous recevrez ce compte
+        rendu par e-mail en même temps.
+      </p>
+      <div class="capture__fields">
+        <label class="field">
+          <span>Prénom</span>
+          <input type="text" name="prenom" autocomplete="given-name" required />
+        </label>
+        <label class="field">
+          <span>Téléphone</span>
+          <input type="tel" name="telephone" autocomplete="tel" required />
+        </label>
+        <label class="field">
+          <span>Adresse e-mail</span>
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" name="consentement" required />
+        <span>
+          J'accepte que mes réponses, qui comportent des informations relatives
+          à ma santé, soient transmises à {' '}
+          <strong>Nature &amp; diététique</strong> pour préparer notre échange,
+          et que vous me recontactiez par téléphone ou par e-mail.
+          Je peux demander leur suppression à tout moment.{' '}
+          <a href="/mentions-legales/#bilan">En savoir plus</a>
+        </span>
+      </label>
+
+      <div class="capture__actions">
+        <button class="button button--primary" type="submit" data-capture-submit>
+          Oui, rappelez-moi
+        </button>
+        <a class="button button--gold" href="/rendez-vous/">
+          Réserver 15 min offertes
+        </a>
+      </div>
+
+      <p class="capture__status" data-capture-status role="status" hidden></p>
+    </form>
+
+    <p class="report__disclaimer">
+      Ce bilan repose sur vos seules déclarations. Il ne constitue ni un
+      diagnostic ni un avis médical, et ne remplace pas une consultation. En cas
+      de symptôme persistant, consultez votre médecin.
+    </p>
+
+    <button class="report__restart" type="button" data-funnel-restart>
+      Recommencer le bilan
+    </button>
+  </section>
+</div>
+
+<script>
+  import { initFunnel } from '../lib/quiz-controller';
+  import { axes } from '../lib/quiz-data';
+  import { calendlyUrl, contact, leadEndpoint } from '../config';
+
+  const root = document.querySelector<HTMLElement>('[data-funnel]');
+  if (root) {
+    initFunnel(root, {
+      axes,
+      leadEndpoint,
+      fallbackEmail: contact.email,
+      hasCalendly: calendlyUrl !== null,
+    });
+  }
+</script>
+
+<style>
+  .funnel {
+    max-width: 46rem;
+    margin-inline: auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .funnel__counter {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .funnel__bar {
+    height: 6px;
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    margin-bottom: var(--space-lg);
+  }
+
+  .funnel__bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      var(--color-green-leaf),
+      var(--color-green-deep)
+    );
+    transition: width var(--transition);
+  }
+
+  .funnel__title {
+    font-size: var(--text-2xl);
+  }
+
+  .funnel__intro {
+    color: var(--color-text-muted);
+    margin-top: var(--space-2xs);
+  }
+
+  .question {
+    border: 0;
+    padding: 0;
+    margin: var(--space-md) 0 0;
+  }
+
+  .question legend {
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-text);
+    padding: 0;
+    margin-bottom: var(--space-xs);
+  }
+
+  .question__choices {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .question__choices--inline {
+    grid-template-columns: repeat(auto-fit, minmax(min(10rem, 100%), 1fr));
+  }
+
+  .choice {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs);
+    align-items: start;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: border-color var(--transition), background-color var(--transition);
+  }
+
+  .choice:hover {
+    border-color: var(--color-green-leaf);
+    background: var(--color-green-wash);
+  }
+
+  .choice input {
+    margin-top: 0.3em;
+    accent-color: var(--color-green-deep);
+  }
+
+  .choice:has(input:checked) {
+    border-color: var(--color-green-deep);
+    background: var(--color-green-wash);
+  }
+
+  .choice:has(input:focus-visible) {
+    outline: 3px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), 1fr));
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+  }
+
+  .field--wide {
+    margin-top: var(--space-md);
+  }
+
+  .field span {
+    font-family: var(--font-ui);
+    font-weight: 700;
+  }
+
+  .field input,
+  .field textarea {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    font-family: inherit;
+  }
+
+  .field textarea {
+    resize: vertical;
+  }
+
+  .funnel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    margin-top: var(--space-lg);
+  }
+
+  .funnel__actions button:only-child {
+    margin-left: auto;
+  }
+
+  [data-funnel-next]:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .funnel__error {
+    margin-top: var(--space-xs);
+    font-size: var(--text-sm);
+    color: #a8341a;
+  }
+
+  /* ---- Compte rendu ---- */
+
+  [data-funnel-report]:focus,
+  [data-funnel-report]:focus-visible {
+    outline: none;
+  }
+
+  .report__title {
+    font-size: var(--text-3xl);
+  }
+
+  .report__intro {
+    margin-top: var(--space-sm);
+    font-size: var(--text-lg);
+    color: var(--color-text-muted);
+  }
+
+  .report__flag {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-gold-wash);
+    border-left: 4px solid var(--color-gold);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: var(--text-sm);
+  }
+
+  .report__solution {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .report__solution h3 {
+    font-size: var(--text-xl);
+  }
+
+  .report__solution p {
+    margin-top: var(--space-xs);
+    color: var(--color-text-muted);
+  }
+
+  .capture {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-md);
+  }
+
+  .capture h3 {
+    font-size: var(--text-lg);
+  }
+
+  .capture__lead {
+    margin-top: var(--space-2xs);
+    max-width: 56ch;
+    color: var(--color-text-muted);
+  }
+
+  .capture__fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+  }
+
+  /*
+   * Le prenom et le telephone tiennent cote a cote, l'adresse prend la ligne
+   * entiere. A trois de front elle devenait trop etroite pour ce qu'on y
+   * tape, et reportee seule a la ligne elle avait l'air d'un oubli.
+   */
+  .capture__fields > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs);
+    align-items: start;
+    margin-top: var(--space-sm);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+
+  .consent input {
+    margin-top: 0.25em;
+    accent-color: var(--color-green-deep);
+  }
+
+  .capture__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+  }
+
+  .capture__status {
+    margin-top: var(--space-sm);
+    font-size: var(--text-sm);
+  }
+
+  .capture__status[data-state='error'] {
+    color: #a8341a;
+  }
+
+  .capture__status[data-state='ok'] {
+    color: var(--color-green-deep);
+    font-weight: 600;
+  }
+
+  .report__disclaimer {
+    margin-top: var(--space-md);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .report__restart {
+    margin-top: var(--space-sm);
+    padding: 0;
+    background: none;
+    border: 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  @media (max-width: 40rem) {
+    .funnel {
+      padding: var(--space-md);
+    }
+  }
+</style>
+
+<style is:global>
+  /* Les lignes du compte rendu sont injectees par le script : elles ne portent
+     pas la portee du composant, ces regles doivent donc rester globales. */
+  .funnel .report__axes {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-lg) 0 0;
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .funnel .report__axis-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-xs);
+  }
+
+  .funnel .report__axis h3 {
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+    font-weight: 800;
+    color: var(--color-green-deep);
+  }
+
+  .funnel .report__level {
+    font-family: var(--font-ui);
+    font-weight: 800;
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+
+  .funnel .report__level[data-level='fort'] {
+    color: #b4541f;
+  }
+
+  .funnel .report__level[data-level='moyen'] {
+    color: #a9760a;
+  }
+
+  .funnel .report__level[data-level='faible'] {
+    color: var(--color-green-leaf);
+  }
+
+  .funnel .report__meter {
+    height: 8px;
+    margin: var(--space-2xs) 0 var(--space-xs);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+  }
+
+  .funnel .report__meter span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      var(--color-green-leaf),
+      var(--color-gold)
+    );
+  }
+
+  .funnel .report__axis p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+</style>

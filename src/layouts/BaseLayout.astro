@@ -1,0 +1,111 @@
+---
+import '@fontsource-variable/lora/wght.css';
+import '@fontsource-variable/lora/wght-italic.css';
+import '@fontsource-variable/nunito-sans/wght.css';
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import ScrollBar from '../components/ScrollBar.astro';
+import { site } from '../config';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+
+const fullTitle = title === site.name ? title : `${title} | ${site.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#156839" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta
+      property="og:image"
+      content={new URL('/images/logo-nature-et-dietetique.png', Astro.site)}
+    />
+    <meta property="og:locale" content="fr_CH" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body>
+    {/* Pose le drapeau avant le premier rendu : sans JavaScript, ou si le
+        script echoue, rien n'est masque. */}
+    <script is:inline>
+      if (
+        'IntersectionObserver' in window &&
+        !matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) {
+        document.documentElement.dataset.reveal = 'on';
+      }
+    </script>
+
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <SiteHeader />
+    <main id="contenu">
+      <slot />
+    </main>
+    <SiteFooter />
+    <ScrollBar />
+
+    <script is:inline>
+      // Apparition au defilement : une seule fois par bloc, puis on oublie.
+      if (document.documentElement.dataset.reveal === 'on') {
+        const vu = new IntersectionObserver(
+          (entrees) => {
+            for (const e of entrees) {
+              if (!e.isIntersecting) continue;
+              e.target.dataset.seen = '';
+              vu.unobserve(e.target);
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px' }
+        );
+
+        for (const bloc of document.querySelectorAll('main > section')) {
+          vu.observe(bloc);
+        }
+      }
+    </script>
+
+    <style>
+      .skip-link {
+        position: absolute;
+        left: var(--space-sm);
+        top: -4rem;
+        z-index: 100;
+        padding: 0.6rem 1rem;
+        background: var(--color-green-deep);
+        color: #fff;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        transition: top var(--transition);
+      }
+
+      .skip-link:focus-visible {
+        top: var(--space-sm);
+      }
+
+      main {
+        flex: 1;
+      }
+    </style>
+  </body>
+</html>

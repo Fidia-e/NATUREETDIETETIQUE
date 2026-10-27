@@ -1,0 +1,65 @@
+---
+/**
+ * Jauge du rapport omega-6 / omega-3.
+ * Illustration du propos, pas une mesure : les reperes affiches servent a
+ * situer la zone visee par rapport a ce que l'on observe couramment.
+ */
+---
+
+<figure class="gauge">
+  <svg viewBox="0 0 400 132" role="img" aria-labelledby="gauge-title">
+    <title id="gauge-title">
+      Échelle du rapport oméga-6 sur oméga-3, de 3 pour 1 à 20 pour 1
+    </title>
+
+    <defs>
+      <linearGradient id="gauge-track" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#599E33" />
+        <stop offset="35%" stop-color="#FAB311" />
+        <stop offset="100%" stop-color="#D96A2B" />
+      </linearGradient>
+    </defs>
+
+    <rect x="20" y="52" width="360" height="18" rx="9" fill="url(#gauge-track)"></rect>
+
+    <g font-size="13" font-weight="700" fill="#5F6B64">
+      <text x="20" y="42">3:1</text>
+      <text x="200" y="42" text-anchor="middle">9:1</text>
+      <text x="380" y="42" text-anchor="end">20:1</text>
+    </g>
+
+    <g>
+      <line x1="56" y1="46" x2="56" y2="76" stroke="#156839" stroke-width="3" stroke-linecap="round"></line>
+      <text x="56" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="#156839">
+        Zone visée
+      </text>
+    </g>
+
+    <g>
+      <line x1="300" y1="46" x2="300" y2="76" stroke="#8A7671" stroke-width="3" stroke-linecap="round"></line>
+      <text x="300" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="#8A7671">
+        Souvent observé
+      </text>
+      <text x="300" y="116" text-anchor="middle" font-size="12" fill="#8A7671">
+        avant un rééquilibrage
+      </text>
+    </g>
+  </svg>
+</figure>
+
+<style>
+  .gauge {
+    margin: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .gauge svg {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-body);
+  }
+</style>

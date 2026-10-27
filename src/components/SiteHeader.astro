@@ -1,0 +1,270 @@
+---
+import { nav, site } from '../config';
+
+const current = Astro.url.pathname;
+
+/** L'accueil ne doit s'activer que sur lui-meme, les autres aussi sur leurs sous-pages. */
+function isCurrent(href: string) {
+  return href === '/' ? current === '/' : current.startsWith(href);
+}
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="header__logo" href="/">
+      <img
+        src="/images/logo-nature-et-dietetique.png"
+        alt={`${site.name} : ${site.tagline}`}
+        width="1124"
+        height="491"
+        fetchpriority="high"
+      />
+    </a>
+
+    <button
+      class="header__toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="navigation-principale"
+    >
+      <span class="visually-hidden">Ouvrir le menu</span>
+      <span class="header__burger" aria-hidden="true"></span>
+    </button>
+
+    <nav
+      class="header__nav"
+      id="navigation-principale"
+      aria-label="Navigation principale"
+    >
+      <ul class="header__list">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="button button--gold header__cta" href="/rendez-vous/">
+        15 min offertes
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-block: 0.75rem;
+  }
+
+  .header__logo img {
+    /* La hauteur pilote le logo, le ratio du fichier fait le reste. */
+    height: 3.25rem;
+    width: auto;
+  }
+
+  .header__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .header__list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .header__list a {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    color: var(--color-text);
+    padding-block: 0.35rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  .header__list a:hover {
+    color: var(--color-green-leaf);
+  }
+
+  .header__list a[aria-current='page'] {
+    color: var(--color-green-deep);
+    border-bottom-color: var(--color-gold);
+  }
+
+  .header__cta {
+    padding: 0.6rem 1.25rem;
+    font-size: var(--text-sm);
+  }
+
+  .header__toggle {
+    display: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  /* Trois traits dessines avec un seul element */
+  .header__burger,
+  .header__burger::before,
+  .header__burger::after {
+    display: block;
+    width: 1.25rem;
+    height: 2px;
+    background: var(--color-green-deep);
+    border-radius: 2px;
+    transition: transform var(--transition), opacity var(--transition);
+  }
+
+  .header__burger::before,
+  .header__burger::after {
+    content: '';
+    position: absolute;
+  }
+
+  .header__burger::before {
+    transform: translateY(-6px);
+  }
+
+  .header__burger::after {
+    transform: translateY(6px);
+  }
+
+  .header__toggle[aria-expanded='true'] .header__burger {
+    background: transparent;
+  }
+
+  .header__toggle[aria-expanded='true'] .header__burger::before {
+    transform: rotate(45deg);
+  }
+
+  .header__toggle[aria-expanded='true'] .header__burger::after {
+    transform: rotate(-45deg);
+  }
+
+  @media (max-width: 60rem) {
+    .header__toggle {
+      display: flex;
+      position: relative;
+    }
+
+    /*
+     * Le panneau reste dans le flux et se replie par l'opacite et un leger
+     * glissement : `display` ne se transitionne pas. `visibility` le retire
+     * du parcours au clavier et des lecteurs d'ecran quand il est ferme, et
+     * elle bascule a la fin de la transition, pas au debut.
+     */
+    .header__nav {
+      display: flex;
+      position: absolute;
+      inset-inline: 0;
+      top: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-sm);
+      padding: var(--space-md);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: var(--shadow-md);
+
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-0.5rem);
+      transition:
+        opacity var(--transition),
+        transform var(--transition),
+        visibility var(--transition);
+    }
+
+    .header__nav[data-open] {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+    .header__list {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .header__list a {
+      display: block;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .header__list a[aria-current='page'] {
+      border-bottom-color: var(--color-gold);
+    }
+
+    /*
+     * Le panneau etire ses enfants pour que les filets sous les liens aillent
+     * d'un bord a l'autre. Le bouton, lui, n'a pas a y aller : etire, il
+     * barrait toute la largeur. Il reprend la largeur de son texte.
+     */
+    .header__cta {
+      align-self: start;
+      margin-top: var(--space-2xs);
+    }
+
+    .header__logo img {
+      height: 2.75rem;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.header__toggle');
+  const menu = document.querySelector<HTMLElement>('#navigation-principale');
+
+  if (toggle && menu) {
+    const label = toggle.querySelector('.visually-hidden');
+
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      menu.toggleAttribute('data-open', open);
+      if (label) label.textContent = open ? 'Fermer le menu' : 'Ouvrir le menu';
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    // Au clavier, on rend la main a l'element qui a ouvert le menu
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>

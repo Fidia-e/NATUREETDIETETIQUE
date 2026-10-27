@@ -1,0 +1,77 @@
+---
+/**
+ * Emplacement d'image en attente du visuel definitif.
+ * Garde la place exacte et reste presentable tant que la photo n'est pas
+ * fournie : il suffira de remplacer le composant par une balise <img>.
+ */
+interface Props {
+  label: string;
+  caption?: string;
+  ratio?: string;
+}
+
+const { label, caption, ratio = '4 / 3' } = Astro.props;
+---
+
+<figure class="media-slot">
+  <div class="media-slot__frame" style={`aspect-ratio:${ratio};`}>
+    <svg viewBox="0 0 48 48" aria-hidden="true" class="media-slot__icon">
+      <rect
+        x="5"
+        y="9"
+        width="38"
+        height="30"
+        rx="4"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"></rect>
+      <circle cx="17" cy="20" r="3.5" fill="currentColor"></circle>
+      <path
+        d="M9 35l10-11 7 8 5-5 8 8"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+    <p class="media-slot__label">{label}</p>
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .media-slot {
+    margin: 0;
+  }
+
+  .media-slot__frame {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+    text-align: center;
+    color: var(--color-green-leaf);
+    background: var(--color-green-wash);
+    border: 2px dashed color-mix(in srgb, var(--color-green-leaf) 45%, transparent);
+    border-radius: var(--radius-md);
+  }
+
+  .media-slot__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .media-slot__label {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    max-width: 24ch;
+  }
+
+  .media-slot figcaption {
+    margin-top: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+</style>

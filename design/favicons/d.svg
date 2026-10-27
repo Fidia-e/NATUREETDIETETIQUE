@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nature et diététique">
+  <defs>
+    <linearGradient id="d-amp" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#FFED0C"/>
+      <stop offset="100%" stop-color="#FAB311"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="#156839"/>
+  <text x="32" y="48" text-anchor="middle" font-family="Nunito, Trebuchet MS, sans-serif"
+        font-size="50" font-weight="900" font-style="italic" fill="url(#d-amp)">&amp;</text>
+</svg>

@@ -1,0 +1,84 @@
+---
+/*
+ * Barre de defilement dessinee, a la place de celle du systeme.
+ *
+ * Le curseur n'est pas anime dans le temps mais le long du defilement :
+ * `animation-timeline: scroll(root)` lie sa position a celle de la page,
+ * sans une ligne de JavaScript et sans ecouter le moindre evenement.
+ *
+ * Tout tient dans un `@supports`. Un navigateur qui ignore les animations
+ * liees au defilement garde sa barre native et n'affiche pas celle-ci :
+ * mieux vaut la barre du systeme qu'un trait dore immobile, ou pire, aucun
+ * repere de defilement.
+ */
+---
+
+<div class="scrollbar" aria-hidden="true"></div>
+
+<style>
+  .scrollbar {
+    display: none;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .scrollbar {
+      /* Longueur du curseur : un repere, pas une mesure de la page */
+      --cursor: 20rem;
+
+      display: block;
+      position: fixed;
+      inset-block: 0;
+      inset-inline-end: 0;
+      z-index: 90;
+      inline-size: 5px;
+      pointer-events: none;
+    }
+
+    .scrollbar::after {
+      content: '';
+      display: block;
+      position: absolute;
+      inset-block-start: 0;
+      inline-size: 100%;
+      block-size: var(--cursor);
+      border-radius: 999px;
+      background: var(--color-gold);
+
+      animation: scrollbar linear both;
+      animation-timeline: scroll(root);
+    }
+
+    /*
+     * Le curseur descend d'un bord a l'autre : a la fin, son haut est a
+     * 100 % de la hauteur de l'ecran et on le remonte de sa propre taille,
+     * pour qu'il s'arrete pile en bas.
+     */
+    @keyframes scrollbar {
+      from {
+        inset-block-start: 0;
+        transform: translateY(0);
+      }
+      to {
+        inset-block-start: 100%;
+        transform: translateY(-100%);
+      }
+    }
+
+    /* La barre du systeme s'efface, celle-ci la remplace */
+    html {
+      scrollbar-width: none;
+    }
+
+    html::-webkit-scrollbar {
+      inline-size: 0;
+      block-size: 0;
+    }
+  }
+
+  /* Sur un ecran de telephone, un curseur plus court reste proportionne */
+  @media (max-width: 46rem) {
+    .scrollbar {
+      --cursor: 6rem;
+    }
+  }
+</style>
