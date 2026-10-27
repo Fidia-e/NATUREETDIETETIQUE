@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# captures d'ecran de travail : elles restent sur le poste, hors du depot
+captures/
+screens-desktop/

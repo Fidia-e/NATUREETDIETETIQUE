@@ -675,12 +675,12 @@ describe('la barre de defilement', () => {
     );
   });
 
-  it('mesure 5 px, en dore et a bouts ronds', () => {
+  it('mesure 7 px, en dore et a bouts ronds', () => {
     const garde = sousSupports((c) => c.includes('animation-timeline'));
     const barre = garde.match(/\.scrollbar[^{,]*\{[^}]*\}/)?.[0] ?? '';
     const curseur = garde.match(/\.scrollbar[^{,]*:after\{[^}]*\}/i)?.[0] ?? '';
 
-    expect(barre).toContain('inline-size:5px');
+    expect(barre).toContain('inline-size:7px');
     expect(curseur).toContain('border-radius:999px');
     expect(curseur).toContain('var(--color-gold)');
   });
