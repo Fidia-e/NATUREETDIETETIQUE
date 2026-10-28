@@ -7,16 +7,39 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ScrollBar from '../components/ScrollBar.astro';
 import { site } from '../config';
+import { siteGraph, toJsonLd } from '../lib/seo';
 
 interface Props {
   title: string;
   description?: string;
+  /** « article » pour un billet du blog, « website » pour le reste. */
+  type?: 'website' | 'article';
+  /** Image de partage, chemin ou adresse absolue. Par defaut, le logo. */
+  image?: string;
+  imageAlt?: string;
+  /** Donnees structurees propres a la page, en plus de celles du site. */
+  jsonLd?: unknown[];
 }
 
-const { title, description = site.description } = Astro.props;
+const {
+  title,
+  description = site.description,
+  type = 'website',
+  image = '/images/logo-nature-et-dietetique.png',
+  imageAlt,
+  jsonLd = [],
+} = Astro.props;
 
-const fullTitle = title === site.name ? title : `${title} | ${site.name}`;
+/*
+ * Google coupe les titres au-dela d'une soixantaine de caracteres. Le nom du
+ * site s'ajoute a la fin quand il tient dans 65 ; sinon on le laisse tomber
+ * plutot que de voir couper les mots qui comptent.
+ */
+const suffix = ` | ${site.name}`;
+const fullTitle =
+  title === site.name || (title + suffix).length > 65 ? title : title + suffix;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const structured = [siteGraph(Astro.site!), ...jsonLd];
 ---
 
 <!doctype html>
@@ -31,19 +54,23 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#156839" />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta
-      property="og:image"
-      content={new URL('/images/logo-nature-et-dietetique.png', Astro.site)}
-    />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+    {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
     <meta property="og:locale" content="fr_CH" />
     <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
+    {
+      structured.map((data) => (
+        <script type="application/ld+json" set:html={toJsonLd(data)} />
+      ))
+    }
   </head>
   <body>
     {/* Pose le drapeau avant le premier rendu : sans JavaScript, ou si le

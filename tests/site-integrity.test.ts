@@ -3,7 +3,7 @@ import { readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { mesurer, noteDe } from '../scripts/ecoindex.mjs';
-import { ecoIndex } from '../src/config';
+import { contact, ecoIndex, practitioner } from '../src/config';
 
 /**
  * Verifications sur le site genere.
@@ -897,5 +897,217 @@ describe('le bilan', () => {
 
   it('affiche la mention qui exclut tout diagnostic', () => {
     expect(pageFor('/bilan/')!.html).toContain('ne constitue ni un diagnostic');
+  });
+});
+
+/*
+ * Le referencement. Le but du site est d'apparaitre en tete de Google : ces
+ * tests gardent ce qui y contribue et que l'on casse sans s'en apercevoir en
+ * retouchant un titre ou un article. Le mode d'emploi est dans SEO.md.
+ */
+describe('le referencement', () => {
+  const decode = (text: string) =>
+    text
+      .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+      .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&');
+
+  const titleOf = (html: string) =>
+    decode(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '');
+  const descriptionOf = (html: string) =>
+    decode(html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '');
+  const metaOf = (html: string, property: string) =>
+    decode(html.match(new RegExp(`<meta property="${property}" content="([^"]*)"`))?.[1] ?? '');
+
+  /** Toutes les donnees structurees de la page, a plat. */
+  const jsonLdOf = (html: string): Record<string, any>[] =>
+    [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => JSON.parse(m[1]))
+      .flatMap((data) => data['@graph'] ?? [data]);
+
+  const ofType = (html: string, type: string) =>
+    jsonLdOf(html).filter((entity) => [entity['@type']].flat().includes(type));
+
+  const indexables = () => pages.filter((p) => p.url.endsWith('/'));
+  const articles = () =>
+    pages.filter((p) => p.url.startsWith('/blog/') && p.url !== '/blog/');
+
+  it('donne a chaque page un titre que Google ne coupe pas', () => {
+    for (const page of indexables()) {
+      const title = titleOf(page.html);
+      expect(title.length, `${page.url} : « ${title} »`).toBeLessThanOrEqual(65);
+    }
+  });
+
+  it('ne donne jamais le meme titre ni la meme description a deux pages', () => {
+    const titles = indexables().map((p) => titleOf(p.html));
+    const descriptions = indexables().map((p) => descriptionOf(p.html));
+
+    expect(new Set(titles).size).toBe(titles.length);
+    expect(new Set(descriptions).size).toBe(descriptions.length);
+  });
+
+  it('garde chaque description entre 70 et 160 caracteres', () => {
+    for (const page of indexables()) {
+      const length = descriptionOf(page.html).length;
+      expect(length, page.url).toBeGreaterThanOrEqual(70);
+      expect(length, page.url).toBeLessThanOrEqual(160);
+    }
+  });
+
+  it('nomme la commune dans le titre de l\u2019accueil', () => {
+    expect(titleOf(pageFor('/')!.html)).toContain(contact.address.city);
+  });
+
+  it('pose un seul titre principal par page', () => {
+    for (const page of indexables()) {
+      const count = [...page.html.matchAll(/<h1[\s>]/g)].length;
+      expect(count, page.url).toBe(1);
+    }
+  });
+
+  it('ouvre le site aux moteurs et leur indique le plan', () => {
+    const robots = readFileSync(join(DIST, 'robots.txt'), 'utf-8');
+
+    expect(robots).toContain('User-agent: *');
+    expect(robots).not.toMatch(/^Disallow: \/$/m);
+    expect(robots).toContain('Sitemap: https://natureetdietetique.com/sitemap-index.xml');
+  });
+
+  it('ne demande a aucune page d\u2019etre ignoree', () => {
+    for (const page of indexables()) {
+      expect(page.html, page.url).not.toMatch(/<meta name="robots"[^>]*noindex/);
+    }
+  });
+
+  it('decrit le cabinet sur chaque page, avec les coordonnees du site', () => {
+    for (const page of indexables()) {
+      const [business] = ofType(page.html, 'HealthAndBeautyBusiness');
+
+      expect(business, page.url).toBeDefined();
+      expect(business.telephone).toBe(contact.phone);
+      expect(business.address.streetAddress).toBe(contact.address.street);
+      expect(business.address.postalCode).toBe('1753');
+      expect(business.address.addressLocality).toBe(contact.address.city);
+      expect(business.address.addressCountry).toBe('CH');
+    }
+  });
+
+  it('presente Florie comme une personne, reliee au cabinet', () => {
+    const [person] = ofType(pageFor('/')!.html, 'Person');
+
+    expect(person.name).toBe(practitioner.fullName);
+    expect(person.url).toBe('https://natureetdietetique.com/mon-histoire/');
+  });
+
+  it('liste tous les articles dans les donnees du blog', () => {
+    const [blog] = ofType(pageFor('/blog/')!.html, 'Blog');
+
+    expect(blog.blogPost).toHaveLength(articles().length);
+  });
+
+  it('ne publie pas le modele d\u2019article', () => {
+    expect(pageFor('/blog/modele-article/')).toBeUndefined();
+  });
+
+  it('declare chaque article dans le plan du site', () => {
+    const sitemap = readFileSync(join(DIST, 'sitemap-0.xml'), 'utf-8');
+    for (const page of articles()) {
+      expect(sitemap, page.url).toContain(`<loc>https://natureetdietetique.com${page.url}</loc>`);
+    }
+  });
+
+  describe.each(['batch-cooking-dimanche', 'faim-emotionnelle', 'lire-une-etiquette', 'petit-dejeuner-rassasiant'])(
+    'l\u2019article %s',
+    (slug) => {
+      const html = () => pageFor(`/blog/${slug}/`)!.html;
+      const canonical = `https://natureetdietetique.com/blog/${slug}/`;
+      const prose = () =>
+        decode(
+          (html().split('class="prose article-prose"')[1] ?? '')
+            .split('class="author')[0]
+            .replace(/<[^>]+>/g, ' ')
+        );
+
+      it('vise son expression dans le titre, la description et le texte', () => {
+        const keyword = metaOf(html(), 'article:tag').toLowerCase();
+
+        expect(keyword.length).toBeGreaterThan(2);
+        expect(titleOf(html()).toLowerCase()).toContain(keyword);
+        expect(descriptionOf(html()).toLowerCase()).toContain(keyword);
+        expect(prose().toLowerCase()).toContain(keyword);
+      });
+
+      it('se presente comme un article, date a l\u2019appui', () => {
+        expect(metaOf(html(), 'og:type')).toBe('article');
+        expect(metaOf(html(), 'article:published_time')).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+      });
+
+      it('porte des donnees BlogPosting attribuees a Florie', () => {
+        const [post] = ofType(html(), 'BlogPosting');
+        const [person] = ofType(html(), 'Person');
+
+        expect(post.headline).toBe(titleOf(html()));
+        expect(post.mainEntityOfPage).toBe(canonical);
+        expect(post.datePublished).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+        expect(post.author['@id']).toBe(person['@id']);
+        expect(post.inLanguage).toBe('fr-CH');
+      });
+
+      it('expose son fil d\u2019Ariane, visible et structure', () => {
+        const [trail] = ofType(html(), 'BreadcrumbList');
+        const items = trail.itemListElement;
+
+        expect(html()).toContain('aria-label="Fil d\'Ariane"');
+        expect(items.map((i: any) => i.item)).toEqual([
+          'https://natureetdietetique.com/',
+          'https://natureetdietetique.com/blog/',
+          canonical,
+        ]);
+      });
+
+      it('relie son autrice et oriente vers une page du cabinet', () => {
+        expect(html()).toMatch(/href="\/mon-histoire\/" rel="author"/);
+        expect(html()).toMatch(
+          /class="button button--gold"[^>]*href="\/(bilan|accompagnement|ateliers|rendez-vous)\/"/
+        );
+      });
+
+      it('declare ses questions frequentes seulement si elles s\u2019affichent', () => {
+        const affichees = html().includes('id="questions"');
+        expect(ofType(html(), 'FAQPage').length > 0).toBe(affichees);
+      });
+    }
+  );
+
+  /*
+   * Le titre de dieteticien.ne est reglemente en Suisse (LPSan) et suppose un
+   * diplome reconnu. Tant que Florie n'a pas confirme le sien, le site ne doit
+   * pas le revendiquer, meme pour viser la recherche « dieteticienne
+   * Fribourg ». Ce test tombera le jour ou on l'ajoute : c'est voulu, il
+   * faudra alors verifier le titre avant de le corriger.
+   */
+  it('ne revendique pas le titre reglemente de dieteticienne', () => {
+    for (const page of pages) {
+      const text = page.html.replace(/<[^>]+>/g, ' ');
+      expect(text, page.url).not.toMatch(/di[eé]t[eé]ticien/i);
+    }
+  });
+});
+
+/*
+ * Regle de la Maison : jamais de tiret cadratin, ni dans les textes ni dans
+ * le code. Il en restait trois, dans un article et deux formulaires ; ce test
+ * empeche qu'un nouveau texte colle depuis ailleurs en ramene.
+ */
+describe('la typographie', () => {
+  it('n’emploie jamais de tiret cadratin', () => {
+    for (const page of pages) {
+      expect(page.html.includes('—'), page.url).toBe(false);
+    }
+    expect(css.includes('—')).toBe(false);
   });
 });

@@ -1,12 +1,14 @@
 ---
 title: "Lire une étiquette en trente secondes"
-description: "La liste d'ingrédients dit presque tout. Voici les quatre réflexes qui suffisent devant un rayon."
+seoTitle: "Lire une étiquette alimentaire en trente secondes"
+description: "Lire une étiquette alimentaire sans y passer dix minutes : la liste d'ingrédients dit presque tout. Quatre réflexes qui suffisent devant un rayon."
+keyword: "lire une étiquette"
 pubDate: 2026-08-30
 category: Décryptage
-readingTime: 4
+cta: bilan
 ---
 
-Devant un paquet, personne n'a le temps de faire une analyse nutritionnelle. Quatre réflexes suffisent à trier l'essentiel.
+Devant un paquet, personne n'a le temps de faire une analyse nutritionnelle. Pour lire une étiquette alimentaire en trente secondes, quatre réflexes suffisent à trier l'essentiel.
 
 ## 1. La liste d'ingrédients avant le tableau
 

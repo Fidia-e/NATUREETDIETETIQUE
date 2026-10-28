@@ -200,7 +200,7 @@ import { contact, contactEndpoint } from '../config';
         event.preventDefault();
         const lignes = [
           `Prénom : ${data.get('prenom')}`,
-          `Nom : ${data.get('nom') || '—'}`,
+          `Nom : ${data.get('nom') || 'non renseigné'}`,
           `Téléphone : ${data.get('telephone')}`,
           '',
           'Demande : être recontacté au sujet du bilan d’équilibre cellulaire.',

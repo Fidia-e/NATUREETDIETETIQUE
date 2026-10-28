@@ -1,24 +1,53 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import { contact, practitioner, site } from '../../config';
+import { getPosts, searchTitle } from '../../lib/blog';
+import { absolute, breadcrumb, ids } from '../../lib/seo';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const posts = await getPosts();
 
 // Les categories viennent des articles eux-memes : pas de liste a maintenir a cote
 const categories = [...new Set(posts.map((post) => post.data.category))].sort();
+
+const base = Astro.site!;
+const description = `Conseils nutrition et alimentation saine par ${practitioner.fullName}, à ${contact.address.city} (${contact.address.canton}) : repères pratiques, étiquettes, recettes et organisation des repas.`;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': absolute('/blog/#blog', base),
+    url: absolute('/blog/', base),
+    name: `Conseils nutrition | ${site.name}`,
+    description,
+    inLanguage: 'fr-CH',
+    author: { '@id': ids(base).person },
+    publisher: { '@id': ids(base).business },
+    blogPost: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      '@id': absolute(`/blog/${post.id}/#article`, base),
+      headline: searchTitle(post),
+      url: absolute(`/blog/${post.id}/`, base),
+      datePublished: post.data.pubDate.toISOString(),
+    })),
+  },
+  breadcrumb(base, [
+    { name: 'Accueil', path: '/' },
+    { name: 'Conseils', path: '/blog/' },
+  ]),
+];
 ---
 
 <BaseLayout
-  title="Conseils"
-  description="Articles de diététique et de nutrition : repères pratiques, décryptages d'étiquettes, recettes et organisation des repas."
+  title="Conseils nutrition et alimentation saine"
+  description={description}
+  jsonLd={jsonLd}
 >
   <PageHero
-    eyebrow="Conseils"
-    title="Des repères utilisables dès demain"
+    eyebrow="Conseils nutrition"
+    title="Des repères pour mieux manger, utilisables dès demain"
     lead="Pas de recette miracle ni de liste d'aliments magiques. Des explications sur ce qui se passe réellement, et ce que vous pouvez en faire."
   />
 
@@ -44,9 +73,9 @@ const categories = [...new Set(posts.map((post) => post.data.category))].sort();
 
       <div class="grid grid--3 posts" id="liste-articles">
         {
-          posts.map((post) => (
+          posts.map((post, index) => (
             <div class="posts__item" data-category={post.data.category}>
-              <ArticleCard post={post} />
+              <ArticleCard post={post} priority={index === 0} />
             </div>
           ))
         }

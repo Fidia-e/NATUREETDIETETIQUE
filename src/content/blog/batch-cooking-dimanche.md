@@ -1,9 +1,11 @@
 ---
 title: "Deux heures le dimanche, cinq dîners dans la semaine"
-description: "Une méthode de batch cooking qui ne demande ni congélateur immense ni matériel particulier."
+seoTitle: "Batch cooking : 2 h le dimanche, 5 dîners prêts"
+description: "Une méthode de batch cooking simple : deux heures le dimanche pour cinq dîners faits maison, sans congélateur immense ni matériel particulier."
+keyword: "batch cooking"
 pubDate: 2026-07-12
 category: Recettes
-readingTime: 6
+cta: ateliers
 ---
 
 Le frein au repas fait maison n'est presque jamais l'envie. C'est le moment où, à 19 h 30, il faut décider, puis éplucher. Le batch cooking déplace la décision au dimanche, quand elle coûte beaucoup moins cher.

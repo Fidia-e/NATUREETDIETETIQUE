@@ -3,7 +3,7 @@ export const site = {
   name: 'Nature & diététique',
   tagline: 'bien vivre, chaque jour',
   description:
-    "Faites le point sur votre équilibre : BalanceTest, état des lieux personnalisé et accompagnement en nutrition pour retrouver énergie et confiance. Florie Deternod, Matran (FR).",
+    "Accompagnement en nutrition à Matran (Fribourg) : bilan offert, BalanceTest et suivi personnalisé pour retrouver énergie et confiance, avec Florie Deternod.",
 } as const;
 
 export const practitioner = {

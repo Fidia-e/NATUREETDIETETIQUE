@@ -1,16 +1,18 @@
 ---
 title: "Le petit-déjeuner qui tient jusqu'au déjeuner"
-description: "Pourquoi la fringale de 11 h n'a rien à voir avec votre volonté, et comment construire un premier repas qui tient vraiment."
+seoTitle: "Petit-déjeuner rassasiant : finie la fringale de 11 h"
+description: "Un petit-déjeuner rassasiant tient jusqu'à midi. Pourquoi la fringale de 11 h n'a rien à voir avec la volonté, et comment composer ce premier repas."
+keyword: "petit-déjeuner rassasiant"
 pubDate: 2026-09-18
 category: Nutrition
-readingTime: 5
+cta: bilan
 ---
 
 Si vous avez faim à 11 h, le problème n'est presque jamais la quantité du petit-déjeuner. C'est sa composition.
 
 ## Ce qui se joue dans les deux heures qui suivent
 
-Un petit-déjeuner construit uniquement autour de glucides rapides — jus de fruits, pain blanc, confiture, céréales sucrées — fait monter la glycémie vite et haut. Le corps répond par une sécrétion d'insuline proportionnelle, la glycémie redescend sous son niveau de départ, et la sensation de faim revient. Vous n'avez pas manqué de volonté : vous avez suivi une courbe.
+Un petit-déjeuner construit uniquement autour de glucides rapides (jus de fruits, pain blanc, confiture, céréales sucrées) fait monter la glycémie vite et haut. Le corps répond par une sécrétion d'insuline proportionnelle, la glycémie redescend sous son niveau de départ, et la sensation de faim revient. Vous n'avez pas manqué de volonté : vous avez suivi une courbe.
 
 ## Les trois appuis d'un premier repas
 

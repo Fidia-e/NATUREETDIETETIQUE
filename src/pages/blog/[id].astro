@@ -1,91 +1,278 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import Photo from '../../components/Photo.astro';
+import { practitioner, contact } from '../../config';
+import {
+  getPosts,
+  formatDate,
+  frenchSpacing,
+  readingTime,
+  relatedPosts,
+  searchTitle,
+  wordCount,
+  type Post,
+} from '../../lib/blog';
+import { absolute, breadcrumb, ids } from '../../lib/seo';
 
 export const getStaticPaths = (async () => {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const posts = await getPosts();
   return posts.map((post) => ({
     params: { id: post.id },
-    props: { post },
+    props: { post, posts },
   }));
 }) satisfies GetStaticPaths;
 
-const { post } = Astro.props;
-const { Content } = await render(post);
+interface Props {
+  post: Post;
+  posts: Post[];
+}
 
-const formatDate = (date: Date) =>
-  date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+const { post, posts } = Astro.props;
+const { title, description, keyword, pubDate, updatedDate, category, cover, coverAlt, faq, cta } =
+  post.data;
+const { Content, headings } = await render(post);
 
-// On propose la suite dans la meme categorie, en completant si besoin
-const others = (await getCollection('blog', ({ data }) => !data.draft))
-  .filter((entry) => entry.id !== post.id)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const base = Astro.site!;
+const url = absolute(`/blog/${post.id}/`, base);
+const minutes = readingTime(post);
+const related = relatedPosts(post, posts);
 
-const related = [
-  ...others.filter((entry) => entry.data.category === post.data.category),
-  ...others.filter((entry) => entry.data.category !== post.data.category),
-].slice(0, 2);
+// Le sommaire n'a d'interet qu'a partir de trois parties
+const sections = headings.filter((heading) => heading.depth === 2);
+const toc = sections.length >= 3 ? sections : [];
+
+/*
+ * Image de partage : 1200 px de large, en JPEG, le format que tous les
+ * reseaux lisent. Sans couverture, l'article reprend l'image du site.
+ */
+const shareImage = cover
+  ? (await getImage({ src: cover, width: 1200, format: 'jpg', quality: 75 })).src
+  : undefined;
+
+/** La page vers laquelle l'article oriente, avec les mots pour y aller. */
+const calls = {
+  bilan: {
+    title: 'Et vous, où en êtes-vous ?',
+    text: 'Trois minutes de questions sur votre énergie, votre digestion et votre moral, et un compte rendu immédiat.',
+    label: 'Faire le bilan offert',
+    href: '/bilan/',
+  },
+  accompagnement: {
+    title: 'Un conseil général ne remplace pas un suivi',
+    text: "Ces articles donnent des repères. L'accompagnement part de vos résultats et de votre quotidien.",
+    label: "Découvrir l'accompagnement",
+    href: '/accompagnement/',
+  },
+  ateliers: {
+    title: 'Passer de la lecture à la cuisine',
+    text: `En petit groupe, chez moi à ${contact.address.city}, autour du plan de travail.`,
+    label: 'Voir les ateliers',
+    href: '/ateliers/',
+  },
+  'rendez-vous': {
+    title: 'Un conseil général ne remplace pas un échange',
+    text: 'Quinze minutes au téléphone, sans frais ni engagement, pour parler de votre situation.',
+    label: 'Réserver 15 minutes offertes',
+    href: '/rendez-vous/',
+  },
+} as const;
+const call = calls[cta];
+
+const trail = [
+  { name: 'Accueil', path: '/' },
+  { name: 'Conseils', path: '/blog/' },
+  { name: title, path: `/blog/${post.id}/` },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${url}#article`,
+    headline: searchTitle(post),
+    name: title,
+    description,
+    keywords: keyword,
+    articleSection: category,
+    wordCount: wordCount(post),
+    timeRequired: `PT${minutes}M`,
+    datePublished: pubDate.toISOString(),
+    dateModified: (updatedDate ?? pubDate).toISOString(),
+    inLanguage: 'fr-CH',
+    mainEntityOfPage: url,
+    image: absolute(shareImage ?? '/images/logo-nature-et-dietetique.png', base),
+    author: { '@id': ids(base).person },
+    publisher: { '@id': ids(base).business },
+    isPartOf: { '@id': ids(base).website },
+  },
+  breadcrumb(base, trail),
+  ...(faq.length > 0
+    ? [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faq.map((item) => ({
+            '@type': 'Question',
+            name: item.question,
+            acceptedAnswer: { '@type': 'Answer', text: item.answer },
+          })),
+        },
+      ]
+    : []),
+];
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout
+  title={searchTitle(post)}
+  description={description}
+  type="article"
+  image={shareImage}
+  imageAlt={cover ? coverAlt : undefined}
+  jsonLd={jsonLd}
+>
+  <Fragment slot="head">
+    <meta property="article:published_time" content={pubDate.toISOString()} />
+    {
+      updatedDate && (
+        <meta property="article:modified_time" content={updatedDate.toISOString()} />
+      )
+    }
+    <meta property="article:section" content={category} />
+    <meta property="article:tag" content={keyword} />
+  </Fragment>
+
   <article>
     <header class="article-hero">
       <div class="container">
-        <p class="article-hero__breadcrumb">
-          <a href="/blog/">Conseils</a> · {post.data.category}
-        </p>
-        <h1>{post.data.title}</h1>
-        <p class="lead article-hero__lead">{post.data.description}</p>
+        <nav class="breadcrumb" aria-label="Fil d'Ariane">
+          <ol>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/blog/">Conseils</a></li>
+            <li aria-current="page">{category}</li>
+          </ol>
+        </nav>
+        <h1>{frenchSpacing(title)}</h1>
+        <p class="lead article-hero__lead">{frenchSpacing(description)}</p>
+        {/* Le separateur vient avant chaque element : il ne reste jamais seul en fin de ligne */}
         <p class="article-hero__meta">
-          <time datetime={post.data.pubDate.toISOString()}>
-            {formatDate(post.data.pubDate)}
-          </time>
-          <span aria-hidden="true">·</span>
-          <span>{post.data.readingTime} min de lecture</span>
+          <span>
+            Par <a href="/mon-histoire/" rel="author">{practitioner.fullName}</a>
+          </span>
+          <span>
+            <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+          </span>
           {
-            post.data.updatedDate && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span>Mis à jour le {formatDate(post.data.updatedDate)}</span>
-              </>
+            updatedDate && (
+              <span>
+                Mis à jour le{' '}
+                <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>
+              </span>
             )
           }
+          <span>{minutes} min de lecture</span>
         </p>
       </div>
     </header>
 
     <div class="container article-body">
+      {
+        cover && (
+          <Image
+            class="article-cover"
+            src={cover}
+            alt={coverAlt ?? ''}
+            widths={[400, 720, 1080, 1440]}
+            sizes="(min-width: 50rem) 720px, 100vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        )
+      }
+
+      {
+        toc.length > 0 && (
+          <nav class="toc" aria-labelledby="sommaire">
+            <p class="toc__title" id="sommaire">
+              Dans cet article
+            </p>
+            <ol>
+              {toc.map((heading) => (
+                <li>
+                  <a href={`#${heading.slug}`}>{frenchSpacing(heading.text)}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+
       <div class="prose article-prose">
         <Content />
       </div>
+
+      {
+        faq.length > 0 && (
+          <section class="faq" aria-labelledby="questions">
+            <h2 id="questions">Questions fréquentes</h2>
+            {faq.map((item) => (
+              <div class="faq__item">
+                <h3>{frenchSpacing(item.question)}</h3>
+                <p>{frenchSpacing(item.answer)}</p>
+              </div>
+            ))}
+          </section>
+        )
+      }
+
+      <aside class="author" aria-label="L'autrice">
+        <Photo
+          class="author__photo"
+          name="florie-portrait"
+          alt={`${practitioner.fullName}, portrait`}
+          width={460}
+          height={842}
+          ratio="1 / 1"
+          focus="center 18%"
+        />
+        <div>
+          <p class="author__name">{practitioner.fullName}</p>
+          <p class="author__bio">
+            J'accompagne en nutrition à {contact.address.city}, dans le canton de{' '}
+            {contact.address.canton}. Ma démarche vient de mon propre parcours de
+            santé, avant d'en faire mon métier.
+          </p>
+          <a class="author__link" href="/mon-histoire/">Lire mon histoire</a>
+        </div>
+      </aside>
     </div>
   </article>
 
-  <section class="section section--wash">
-    <div class="container">
-      <h2>À lire ensuite</h2>
-      <div class="grid grid--2 related">
-        {related.map((entry) => <ArticleCard post={entry} />)}
-      </div>
-    </div>
-  </section>
+  {
+    related.length > 0 && (
+      <section class="section section--wash">
+        <div class="container">
+          <h2>À lire ensuite</h2>
+          <div class="grid grid--2 related">
+            {related.map((entry) => (
+              <ArticleCard post={entry} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <section class="section section--green">
     <div class="container cta">
       <div>
-        <h2>Un conseil général ne remplace pas un bilan</h2>
-        <p class="lead">
-          Ces articles donnent des repères. Pour votre situation précise, une
-          consultation ira beaucoup plus vite.
-        </p>
+        <h2>{call.title}</h2>
+        <p class="lead">{call.text}</p>
       </div>
-      <a class="button button--gold" href="/rendez-vous/">Prendre rendez-vous</a>
+      <a class="button button--gold" href={call.href}>{call.label}</a>
     </div>
   </section>
 </BaseLayout>
@@ -108,10 +295,21 @@ const related = [
     max-width: 22ch;
   }
 
-  .article-hero__breadcrumb {
+  .breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin: 0 0 var(--space-xs);
+    padding: 0;
+    list-style: none;
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-    margin-bottom: var(--space-xs);
+  }
+
+  .breadcrumb li + li::before {
+    content: '/';
+    margin-right: var(--space-2xs);
+    color: var(--color-border);
   }
 
   .article-hero__lead {
@@ -122,14 +320,119 @@ const related = [
   .article-hero__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xs);
+    column-gap: var(--space-xs);
+    row-gap: var(--space-2xs);
     margin-top: var(--space-sm);
     font-size: var(--text-sm);
     color: var(--color-text-muted);
   }
 
+  .article-hero__meta > span + span::before {
+    content: '·';
+    margin-right: var(--space-xs);
+  }
+
   .article-body {
+    display: grid;
+    gap: var(--space-lg);
     padding-block: var(--space-xl);
+  }
+
+  /* La colonne de lecture, alignee a gauche sur le titre de l'article */
+  .article-body > :global(*) {
+    width: min(100%, var(--width-prose));
+  }
+
+  .article-cover {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+  }
+
+  .toc {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-surface-alt);
+    border-left: 4px solid var(--color-gold);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  .toc__title {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    color: var(--color-green-deep);
+  }
+
+  .toc ol {
+    display: grid;
+    gap: var(--space-2xs);
+    margin-top: var(--space-xs);
+    padding-left: 1.3rem;
+  }
+
+  .faq {
+    display: grid;
+    gap: var(--space-md);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .faq h2 {
+    font-size: var(--text-2xl);
+  }
+
+  .faq__item h3 {
+    font-size: var(--text-lg);
+  }
+
+  .faq__item p {
+    margin-top: var(--space-2xs);
+  }
+
+  .author {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: var(--space-md);
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  /* Prefixe par .author pour l'emporter sur l'arrondi propre au composant Photo */
+  .author :global(.author__photo) {
+    border-radius: 50%;
+    box-shadow: none;
+  }
+
+  .author__name {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    color: var(--color-green-deep);
+  }
+
+  .author__bio {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .author__link {
+    display: inline-block;
+    margin-top: var(--space-xs);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  @media (max-width: 30rem) {
+    .author {
+      grid-template-columns: 1fr;
+      justify-items: start;
+    }
+
+    .author :global(.author__photo) {
+      width: 5rem;
+    }
   }
 
   .related {
@@ -159,6 +462,8 @@ const related = [
   .article-prose h2 {
     font-size: var(--text-2xl);
     margin-top: var(--space-lg);
+    /* Le sommaire saute ici : on laisse de la place sous l'en-tete fixe */
+    scroll-margin-top: 6rem;
   }
 
   .article-prose h3 {

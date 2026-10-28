@@ -1,9 +1,11 @@
 ---
 title: "Faim réelle ou faim émotionnelle : apprendre à faire la différence"
-description: "Manger pour calmer autre chose que la faim est banal. Le reconnaître sur le moment est la seule compétence qui change quelque chose."
+seoTitle: "Faim émotionnelle ou vraie faim : faire la différence"
+description: "Faim émotionnelle ou vraie faim ? Trois signes pour les distinguer sur le moment, et la pause de trois minutes qui change vraiment quelque chose."
+keyword: "faim émotionnelle"
 pubDate: 2026-06-05
 category: Bien-être
-readingTime: 5
+cta: accompagnement
 ---
 
 Manger pour calmer une tension, un ennui ou une contrariété n'est ni un échec ni un trouble. C'est un comportement très répandu, qui devient gênant seulement quand il devient la seule réponse disponible.

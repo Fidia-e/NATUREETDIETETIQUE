@@ -246,7 +246,7 @@ const sujets = [
           `Prénom : ${data.get('prenom')}`,
           `Nom : ${data.get('nom')}`,
           `E-mail : ${data.get('email')}`,
-          `Téléphone : ${data.get('telephone') || '—'}`,
+          `Téléphone : ${data.get('telephone') || 'non renseigné'}`,
           `Sujet : ${data.get('sujet')}`,
           '',
           String(data.get('message') ?? ''),

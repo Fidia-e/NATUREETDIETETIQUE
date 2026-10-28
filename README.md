@@ -3,6 +3,13 @@
 Site vitrine et entonnoir de conversion, construit avec [Astro](https://astro.build).
 Site statique : aucune base de données, aucun serveur à maintenir.
 
+## Référencement
+
+Le but du site est d'apparaître en tête de Google. Les expressions visées, les
+sujets d'articles, les règles d'écriture d'un article et ce qui reste à faire
+hors du site (fiche Google, annuaires, Search Console) sont dans
+[`SEO.md`](SEO.md).
+
 ## Démarrer
 
 ```bash
@@ -20,7 +27,7 @@ npm run check && npm test
 
 - `npm run check` lance `astro check` : types TypeScript et diagnostics sur les
   fichiers `.astro`.
-- `npm test` construit le site puis lance Vitest : 78 tests répartis en trois
+- `npm test` construit le site puis lance Vitest : 150 tests répartis en trois
   fichiers.
 - `npm run eco` construit le site et affiche la note EcoIndex de chaque page.
 
@@ -30,7 +37,7 @@ npm run check && npm test
 | --- | --- |
 | `tests/quiz-scoring.test.ts` | Le calcul du compte rendu : répartition par axe, seuils, choix du titre, cohérence des questions |
 | `tests/quiz-funnel.test.ts` | Le parcours réel : verrouillage des étapes, retour arrière, compte rendu, consentement obligatoire, envoi et repli e-mail |
-| `tests/site-integrity.test.ts` | Le site généré : pages attendues, liens internes, métadonnées, alternatives textuelles, absence de référence au droit français, contraste du pied de page, et note EcoIndex |
+| `tests/site-integrity.test.ts` | Le site généré : pages attendues, liens internes, métadonnées, alternatives textuelles, absence de référence au droit français, contraste du pied de page, note EcoIndex, et référencement (titres, descriptions, données structurées, articles du blog) |
 
 Le quiz est découpé en trois modules dans `src/lib/` : les données, le calcul
 (fonctions pures) et le contrôleur DOM. Le composant `FunnelQuiz.astro` ne fait
