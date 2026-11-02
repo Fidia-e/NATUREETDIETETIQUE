@@ -1,0 +1,1010 @@
+---
+/*
+ * Back-office du blog. Toute la logique serveur est dans public/api/blog.php ;
+ * cette page n'est qu'un formulaire. Elle garde le gabarit du site, donc son
+ * pied de page et sa signature, et reste hors des moteurs de recherche.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CATEGORIES, CTAS } from '../lib/article-rules';
+import { practitioner, site } from '../config';
+---
+
+<BaseLayout
+  title="Espace de rédaction"
+  description={`L'espace où ${practitioner.firstName} écrit et publie les articles du blog ${site.name}. Accès réservé.`}
+>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, nofollow" />
+  </Fragment>
+
+  <div class="container admin" data-site-url={Astro.site?.origin}>
+    <div class="admin-row">
+      <h1>Espace de rédaction</h1>
+      <button class="button button--ghost" type="button" id="logout" hidden>Se déconnecter</button>
+    </div>
+
+    <p class="admin-notice" id="notice" role="status" aria-live="polite" hidden></p>
+
+    {/* ---- Connexion ---- */}
+    <form class="admin-login" id="login-view" hidden>
+      <h2>Connexion</h2>
+      <label for="password">Mot de passe</label>
+      <div class="admin-password">
+        <input type="password" id="password" autocomplete="current-password" required />
+        {/* Pour vérifier ce qu'on a tapé avant de valider. */}
+        <button class="admin-link" type="button" id="toggle-password" aria-pressed="false">Afficher</button>
+      </div>
+      <button class="button button--primary" type="submit">Entrer</button>
+    </form>
+
+    {/* ---- Liste des articles ---- */}
+    <section id="list-view" hidden>
+      <div class="admin-row">
+        <h2>Mes articles</h2>
+        <button class="button button--primary" type="button" id="new-article">Nouvel article</button>
+      </div>
+      <p class="admin-notice" id="deploy" hidden></p>
+      <ul class="admin-articles" id="articles"></ul>
+    </section>
+
+    {/* ---- Rédaction ---- */}
+    <form id="editor-view" novalidate hidden>
+      <div class="admin-row">
+        <h2 id="editor-title">Nouvel article</h2>
+        <button class="admin-link" type="button" id="back">Retour à la liste</button>
+      </div>
+
+      <div class="admin-editor">
+        <div class="admin-fields">
+          <div class="admin-field">
+            <label for="keyword">Expression visée <span class="admin-counter" id="keyword-counter"></span></label>
+            <input type="text" id="keyword" maxlength="60" required />
+            <p class="admin-hint">
+              Une seule, telle que les gens la tapent dans Google&nbsp;: «&nbsp;faim émotionnelle&nbsp;», «&nbsp;petit-déjeuner rassasiant&nbsp;».
+              Elle donne aussi son adresse à l'article, qui ne change plus ensuite.
+            </p>
+          </div>
+
+          <div class="admin-field">
+            <label for="title">Titre de l'article <span class="admin-counter" id="title-counter"></span></label>
+            <input type="text" id="title" maxlength="90" required />
+            <p class="admin-hint">Le grand titre en haut de la page, écrit pour la lectrice.</p>
+          </div>
+
+          <div class="admin-field">
+            <label for="seo-title">Titre pour Google <span class="admin-counter" id="seo-title-counter"></span></label>
+            <input type="text" id="seo-title" maxlength="60" />
+            <p class="admin-hint">
+              Facultatif si le titre de l'article fait moins de 60 caractères et contient l'expression. Sinon, écris-le
+              ici, avec l'expression au début.
+            </p>
+          </div>
+
+          <div class="admin-field">
+            <label for="description">Description <span class="admin-counter" id="description-counter"></span></label>
+            <textarea id="description" rows="3" maxlength="160" required></textarea>
+            <p class="admin-hint">Le texte sous le titre dans Google, et l'extrait sur le blog&nbsp;: l'expression, et une raison de cliquer.</p>
+          </div>
+
+          <div class="admin-pair">
+            <div class="admin-field">
+              <label for="category">Rubrique</label>
+              <select id="category" required>
+                {CATEGORIES.map((category) => <option value={category}>{category}</option>)}
+              </select>
+            </div>
+
+            <div class="admin-field">
+              <label for="cta">À la fin, orienter vers</label>
+              <select id="cta" required>
+                {Object.entries(CTAS).map(([value, label]) => <option value={value}>{label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-field">
+            <label for="image">Image de couverture <span class="admin-counter">facultative</span></label>
+            <input type="file" id="image" accept="image/jpeg,image/png,image/webp" />
+            <p class="admin-hint">Une photo en paysage. Elle est allégée automatiquement avant l'envoi.</p>
+            <img class="admin-preview" id="image-preview" alt="Aperçu de l'image choisie" hidden />
+            <label class="admin-check" id="remove-image-row" hidden>
+              <input type="checkbox" id="remove-image" />
+              Retirer l'image actuelle de l'article
+            </label>
+          </div>
+
+          <div class="admin-field">
+            <label for="cover-alt">Description de l'image <span class="admin-counter">si l'article a une image</span></label>
+            <input type="text" id="cover-alt" maxlength="200" />
+            <p class="admin-hint">Ce que montre la photo, pour les personnes malvoyantes et pour Google Images.</p>
+          </div>
+
+          <div class="admin-field">
+            <label for="body">Texte de l'article</label>
+            <div class="admin-toolbar" role="toolbar" aria-label="Mise en forme">
+              <button type="button" data-format="h2">Intertitre</button>
+              <button type="button" data-format="h3">Sous-titre</button>
+              <button type="button" data-format="bold"><strong>Gras</strong></button>
+              <button type="button" data-format="italic"><em>Italique</em></button>
+              <button type="button" data-format="list">Liste</button>
+              <button type="button" data-format="link">Lien</button>
+            </div>
+            <textarea id="body" rows="18" required></textarea>
+            <p class="admin-hint">Saute une ligne entre deux paragraphes. Chaque intertitre répond à une question.</p>
+          </div>
+
+          <fieldset class="admin-faq">
+            <legend>Questions fréquentes</legend>
+            <p class="admin-hint">Deux à quatre questions reprises de «&nbsp;Autres questions posées&nbsp;» dans Google, réponses de deux ou trois phrases.</p>
+            <div class="admin-faq-items" id="faq"></div>
+            <button class="admin-link" type="button" id="add-question">Ajouter une question</button>
+          </fieldset>
+
+          <template id="faq-item">
+            <div class="admin-faq-item">
+              <label>Question <span class="admin-counter" data-counter="question"></span>
+                <input type="text" data-faq="question" maxlength="150" />
+              </label>
+              <label>Réponse <span class="admin-counter" data-counter="answer"></span>
+                <textarea data-faq="answer" rows="3" maxlength="600"></textarea>
+              </label>
+              <button class="admin-link" type="button" data-remove-question>Retirer cette question</button>
+            </div>
+          </template>
+
+          <div class="admin-pair">
+            <div class="admin-field">
+              <label for="pub-date">Date de publication</label>
+              <input type="date" id="pub-date" required />
+            </div>
+
+            <div class="admin-field">
+              <label for="updated-date">Mis à jour le <span class="admin-counter">facultatif</span></label>
+              <input type="date" id="updated-date" />
+              <p class="admin-hint">Seulement quand tu retouches l'article sur le fond&nbsp;: Google favorise les contenus tenus à jour.</p>
+            </div>
+          </div>
+
+          <label class="admin-check">
+            <input type="checkbox" id="draft" />
+            Brouillon&nbsp;: enregistrer sans mettre en ligne
+          </label>
+
+          <button class="button button--primary admin-save" type="submit" id="save">Publier</button>
+        </div>
+
+        <aside class="admin-side" aria-label="Aide au référencement">
+          <h3>Aperçu dans Google</h3>
+          <div class="admin-snippet">
+            <p class="admin-snippet__url" id="snippet-url"></p>
+            <p class="admin-snippet__title" id="snippet-title"></p>
+            <p class="admin-snippet__description" id="snippet-description"></p>
+          </div>
+
+          <h3>Pour publier</h3>
+          <p class="admin-hint">Sans ces repères, l'article ne part pas en ligne. Un brouillon n'a besoin que des longueurs.</p>
+          <ul class="admin-checklist" id="required-checks"></ul>
+
+          <h3>Pour être bien placée</h3>
+          <p class="admin-hint">Des conseils&nbsp;: tu peux publier sans tout cocher, mais plus il y en a de verts, mieux l'article sera trouvé.</p>
+          <ul class="admin-checklist" id="advice-checks"></ul>
+        </aside>
+      </div>
+    </form>
+  </div>
+</BaseLayout>
+
+{/* `is:global` : la liste et les contrôles sont créés par le script, hors de portée des styles isolés d'Astro. */}
+<style is:global>
+  .admin {
+    display: grid;
+    gap: var(--space-md);
+    padding-block: var(--space-lg) var(--space-xl);
+  }
+
+  .admin [hidden] {
+    display: none !important;
+  }
+
+  .admin h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .admin h2 {
+    font-size: var(--text-xl);
+  }
+
+  .admin h3 {
+    margin-top: var(--space-md);
+    font-family: var(--font-ui);
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--color-green-deep);
+  }
+
+  .admin h3:first-child {
+    margin-top: 0;
+  }
+
+  .admin-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  #list-view > .admin-row,
+  #editor-view > .admin-row {
+    margin-bottom: var(--space-md);
+  }
+
+  .admin label,
+  .admin legend {
+    display: block;
+    font-weight: 600;
+  }
+
+  .admin input[type='text'],
+  .admin input[type='password'],
+  .admin input[type='date'],
+  .admin select,
+  .admin textarea {
+    width: 100%;
+    margin-top: var(--space-2xs);
+    padding: 0.7rem;
+    border: 1px solid var(--color-taupe);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-weight: 400;
+  }
+
+  .admin textarea {
+    resize: vertical;
+  }
+
+  .admin-link {
+    padding: 0.4rem 0;
+    border: 0;
+    background: none;
+    color: var(--color-green-deep);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .admin-login {
+    display: grid;
+    gap: var(--space-xs);
+    justify-items: start;
+    width: min(100%, 24rem);
+    margin-inline: auto;
+    padding-block: var(--space-lg);
+  }
+
+  .admin-login label {
+    margin-top: var(--space-xs);
+  }
+
+  /* Le bouton « Afficher » est posé dans le champ, à droite. */
+  .admin-password {
+    position: relative;
+    width: 100%;
+  }
+
+  .admin-password input {
+    margin-top: 0 !important;
+    padding-right: 5.5rem !important;
+  }
+
+  .admin-password .admin-link {
+    position: absolute;
+    top: 50%;
+    right: 0.8rem;
+    translate: 0 -50%;
+  }
+
+  .admin-notice {
+    padding: var(--space-xs) var(--space-sm);
+    border-left: 4px solid var(--color-green-leaf);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--color-green-wash);
+  }
+
+  .admin-notice.is-error {
+    border-color: #b3261e;
+    background: #fbeeec;
+    color: #8c1d18;
+  }
+
+  #deploy {
+    margin-bottom: var(--space-sm);
+  }
+
+  .admin-articles {
+    display: grid;
+    gap: var(--space-xs);
+    padding: 0;
+    list-style: none;
+  }
+
+  .admin-articles li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs) var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+
+  .admin-articles__name {
+    font-weight: 600;
+  }
+
+  .admin-articles__meta {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .admin-articles__actions {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .admin-fields {
+    display: grid;
+    gap: var(--space-md);
+    min-width: 0;
+  }
+
+  .admin-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .admin-hint {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .admin-counter {
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .admin-counter.is-ok {
+    color: var(--color-green-deep);
+  }
+
+  .admin-counter.is-off {
+    color: #b3261e;
+  }
+
+  .admin-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-top: var(--space-2xs);
+  }
+
+  .admin-toolbar button {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--color-taupe);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .admin-faq {
+    display: grid;
+    gap: var(--space-xs);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .admin-faq-items {
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .admin-faq-items:empty {
+    display: none;
+  }
+
+  .admin-faq-item {
+    display: grid;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-sm);
+  }
+
+  .admin-faq-item .admin-link {
+    justify-self: start;
+  }
+
+  .admin .admin-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-weight: 400;
+  }
+
+  .admin-preview {
+    display: block;
+    width: min(100%, 20rem);
+    height: auto;
+    margin-top: var(--space-xs);
+    border-radius: var(--radius-sm);
+  }
+
+  .admin-save {
+    justify-self: start;
+  }
+
+  .admin-save:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  .admin-side {
+    margin-top: var(--space-lg);
+  }
+
+  .admin-snippet {
+    margin-top: var(--space-xs);
+    padding: var(--space-sm);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    overflow-wrap: anywhere;
+  }
+
+  .admin-snippet__url {
+    font-size: var(--text-sm);
+    color: #4d5156;
+  }
+
+  .admin-snippet__title {
+    font-size: var(--text-lg);
+    color: #1a0dab;
+  }
+
+  .admin-snippet__description {
+    font-size: var(--text-sm);
+    color: #4d5156;
+  }
+
+  .admin-checklist {
+    display: grid;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+    padding: 0;
+    font-size: var(--text-sm);
+    list-style: none;
+  }
+
+  .admin-checklist li {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .admin-checklist li::before {
+    content: '○';
+    position: absolute;
+    left: 0;
+  }
+
+  .admin-checklist li.is-done::before {
+    content: '✓';
+    color: var(--color-green-deep);
+  }
+
+  .admin-checklist li.is-done strong {
+    color: var(--color-green-deep);
+  }
+
+  .admin-checklist__why {
+    display: block;
+    color: var(--color-text-muted);
+  }
+
+  .admin-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Sur grand écran, l'aide au référencement reste visible à côté du texte. */
+  @media (min-width: 60rem) {
+    .admin-editor {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 20rem;
+      gap: var(--space-lg);
+      align-items: start;
+    }
+
+    .admin-side {
+      position: sticky;
+      top: 6rem;
+      max-height: calc(100vh - 7rem);
+      margin-top: 0;
+      overflow-y: auto;
+    }
+  }
+</style>
+
+<script>
+  import {
+    LIMITS,
+    adviceChecks,
+    frenchSpacing,
+    requiredChecks,
+    searchTitle,
+    slugify,
+    textLength,
+    type ArticleDraft,
+    type Check,
+    type FaqItem,
+  } from '../lib/article-rules';
+
+  interface Article {
+    slug: string;
+    title: string;
+    seoTitle: string;
+    description: string;
+    keyword: string;
+    pubDate: string;
+    updatedDate: string;
+    category: string;
+    cover: string;
+    coverAlt: string;
+    faq: FaqItem[];
+    cta: string;
+    draft: boolean;
+    body: string;
+  }
+
+  const API = '/api/blog.php';
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  const siteUrl = document.querySelector<HTMLElement>('.admin')?.dataset.siteUrl ?? '';
+  const views = { login: $('login-view'), list: $('list-view'), editor: $('editor-view') };
+  const notice = $('notice');
+  const faqList = $('faq');
+  const fields = {
+    keyword: $<HTMLInputElement>('keyword'),
+    title: $<HTMLInputElement>('title'),
+    seoTitle: $<HTMLInputElement>('seo-title'),
+    description: $<HTMLTextAreaElement>('description'),
+    category: $<HTMLSelectElement>('category'),
+    cta: $<HTMLSelectElement>('cta'),
+    image: $<HTMLInputElement>('image'),
+    coverAlt: $<HTMLInputElement>('cover-alt'),
+    body: $<HTMLTextAreaElement>('body'),
+    pubDate: $<HTMLInputElement>('pub-date'),
+    updatedDate: $<HTMLInputElement>('updated-date'),
+    draft: $<HTMLInputElement>('draft'),
+    removeImage: $<HTMLInputElement>('remove-image'),
+  };
+
+  let csrf = '';
+  let articles: Article[] = [];
+  let editingSlug = '';
+  let hasCover = false;
+  let pendingImage: { data: string } | null = null;
+  let deployTimer = 0;
+  // Un texte en cours ne se perd pas : ni en quittant la page, ni quand la session expire.
+  let dirty = false;
+  let resumeEditor = false;
+
+  // ---- Échanges avec le serveur ------------------------------------
+
+  async function api(action: string, body?: object) {
+    const response = await fetch(`${API}?action=${action}`, {
+      method: body ? 'POST' : 'GET',
+      headers: body ? { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf } : {},
+      body: body ? JSON.stringify(body) : undefined,
+      credentials: 'same-origin',
+    });
+    const data = await response.json().catch(() => ({ error: 'Réponse illisible du serveur.' }));
+    if (response.status === 401 && action !== 'login') {
+      resumeEditor = !views.editor.hidden;
+      show('login');
+    }
+    if (!response.ok) throw new Error(data.error ?? 'Une erreur est survenue.');
+    return data;
+  }
+
+  function say(message: string, isError = false) {
+    notice.textContent = message;
+    notice.hidden = message === '';
+    notice.classList.toggle('is-error', isError);
+    if (message !== '') notice.scrollIntoView({ block: 'nearest' });
+  }
+
+  function show(view: keyof typeof views) {
+    Object.entries(views).forEach(([name, element]) => (element.hidden = name !== view));
+    $('logout').hidden = view === 'login';
+    window.scrollTo(0, 0);
+  }
+
+  // ---- Liste --------------------------------------------------------
+
+  const formatDate = (date: string) =>
+    new Date(`${date}T00:00:00`).toLocaleDateString('fr-CH', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const linkButton = (label: string, onClick: () => void) => {
+    const button = Object.assign(document.createElement('button'), {
+      className: 'admin-link',
+      type: 'button',
+      textContent: label,
+    });
+    button.addEventListener('click', onClick);
+    return button;
+  };
+
+  async function loadList() {
+    show('list');
+    const list = $('articles');
+    // GitHub met une seconde ou deux à répondre : une liste vide ferait croire que tout a disparu.
+    list.replaceChildren(Object.assign(document.createElement('li'), { textContent: 'Chargement des articles…' }));
+    articles = (await api('list')).articles;
+    list.replaceChildren(
+      ...articles.map((article) => {
+        const item = document.createElement('li');
+        const text = document.createElement('div');
+        const name = Object.assign(document.createElement('p'), {
+          className: 'admin-articles__name',
+          textContent: article.title,
+        });
+        const meta = Object.assign(document.createElement('p'), {
+          className: 'admin-articles__meta',
+          textContent: `${article.draft ? 'Brouillon' : 'En ligne'}, ${formatDate(article.pubDate)}, ${article.category}`,
+        });
+        text.append(name, meta);
+
+        const actions = Object.assign(document.createElement('div'), { className: 'admin-articles__actions' });
+        actions.append(
+          linkButton('Modifier', () => openEditor(article)),
+          linkButton('Supprimer', () => removeArticle(article))
+        );
+
+        item.append(text, actions);
+        return item;
+      })
+    );
+    if (articles.length === 0) {
+      list.append(Object.assign(document.createElement('li'), { textContent: 'Aucun article pour le moment.' }));
+    }
+  }
+
+  async function removeArticle(article: Article) {
+    if (!confirm(`Supprimer définitivement « ${article.title} » ?`)) return;
+    try {
+      await api('delete', { slug: article.slug });
+      say('Article supprimé.');
+      await loadList();
+      if (!article.draft) watchDeploy();
+    } catch (error) {
+      say((error as Error).message, true);
+    }
+  }
+
+  // ---- Suivi de la mise en ligne -----------------------------------
+
+  function watchDeploy() {
+    const box = $('deploy');
+    const started = Date.now();
+    box.hidden = false;
+    box.textContent = 'Mise en ligne en cours, compte deux à trois minutes…';
+    clearInterval(deployTimer);
+    deployTimer = window.setInterval(async () => {
+      // les premières secondes, GitHub n'a pas encore démarré la nouvelle mise en ligne
+      if (Date.now() - started < 20000) return;
+      const { state } = await api('status').catch(() => ({ state: 'unknown' }));
+      if (state === 'online') box.textContent = 'C’est en ligne !';
+      if (state === 'failed') box.textContent = 'La mise en ligne a échoué. Préviens Fidia, rien n’est perdu.';
+      if (state === 'online' || state === 'failed' || Date.now() - started > 600000) clearInterval(deployTimer);
+    }, 10000);
+  }
+
+  // ---- Rédaction ----------------------------------------------------
+
+  /** La date du jour sur le poste de Florie : toISOString donnerait celle de Greenwich. */
+  const today = () => {
+    const now = new Date();
+    const pad = (value: number) => String(value).padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  };
+
+  function addQuestion(item?: FaqItem) {
+    const template = $<HTMLTemplateElement>('faq-item');
+    const row = (template.content.cloneNode(true) as DocumentFragment).firstElementChild as HTMLElement;
+    row.querySelector<HTMLInputElement>('[data-faq="question"]')!.value = item?.question ?? '';
+    row.querySelector<HTMLTextAreaElement>('[data-faq="answer"]')!.value = item?.answer ?? '';
+    row.querySelector('[data-remove-question]')!.addEventListener('click', () => {
+      row.remove();
+      dirty = true;
+      refresh();
+    });
+    faqList.append(row);
+  }
+
+  const readFaq = (): FaqItem[] =>
+    [...faqList.children].map((row) => ({
+      question: row.querySelector<HTMLInputElement>('[data-faq="question"]')!.value,
+      answer: row.querySelector<HTMLTextAreaElement>('[data-faq="answer"]')!.value,
+    }));
+
+  function openEditor(article?: Article) {
+    editingSlug = article?.slug ?? '';
+    pendingImage = null;
+    hasCover = (article?.cover ?? '') !== '';
+    dirty = false;
+    fields.removeImage.checked = false;
+    $('remove-image-row').hidden = !hasCover;
+    $('editor-title').textContent = article ? 'Modifier l’article' : 'Nouvel article';
+    fields.keyword.value = article?.keyword ?? '';
+    fields.title.value = article?.title ?? '';
+    fields.seoTitle.value = article?.seoTitle ?? '';
+    fields.description.value = article?.description ?? '';
+    fields.category.value = article?.category || fields.category.options[0].value;
+    fields.cta.value = article?.cta || fields.cta.options[0].value;
+    fields.coverAlt.value = article?.coverAlt ?? '';
+    fields.body.value = article?.body ?? '';
+    fields.pubDate.value = article?.pubDate ?? today();
+    fields.updatedDate.value = article?.updatedDate ?? '';
+    fields.draft.checked = article?.draft ?? false;
+    fields.image.value = '';
+    faqList.replaceChildren();
+    (article?.faq ?? []).forEach((item) => addQuestion(item));
+    $<HTMLImageElement>('image-preview').hidden = true;
+    say('');
+    show('editor');
+    refresh();
+  }
+
+  function renderChecks(id: string, checks: Check[]) {
+    $(id).replaceChildren(
+      ...checks.map(({ label, done, why }) => {
+        const item = Object.assign(document.createElement('li'), { className: done ? 'is-done' : '' });
+        const state = Object.assign(document.createElement('span'), {
+          className: 'admin-sr-only',
+          textContent: done ? 'Fait : ' : 'À faire : ',
+        });
+        const name = Object.assign(document.createElement('strong'), { textContent: frenchSpacing(label) });
+        const reason = Object.assign(document.createElement('span'), {
+          className: 'admin-checklist__why',
+          textContent: frenchSpacing(why),
+        });
+        item.append(state, name, reason);
+        return item;
+      })
+    );
+  }
+
+  /** Vert dans les limites, rouge en dehors, neutre tant que le champ est vide. */
+  function renderCounter(counter: Element, value: string, { min, max }: { min: number; max: number }) {
+    const length = textLength(value.trim());
+    counter.textContent = `${length} / ${max} caractères`;
+    counter.className = `admin-counter ${length === 0 ? '' : length >= min && length <= max ? 'is-ok' : 'is-off'}`;
+  }
+
+  // Compteurs, aperçu Google et listes de contrôle, recalculés à chaque frappe.
+  function refresh() {
+    const draft: ArticleDraft = {
+      title: fields.title.value,
+      seoTitle: fields.seoTitle.value,
+      description: fields.description.value,
+      keyword: fields.keyword.value,
+      body: fields.body.value,
+      faq: readFaq(),
+      hasCover: pendingImage !== null || (hasCover && !fields.removeImage.checked),
+      coverAlt: fields.coverAlt.value,
+    };
+
+    renderCounter($('keyword-counter'), draft.keyword, LIMITS.keyword);
+    renderCounter($('title-counter'), draft.title, LIMITS.title);
+    renderCounter($('seo-title-counter'), draft.seoTitle, LIMITS.seoTitle);
+    renderCounter($('description-counter'), draft.description, LIMITS.description);
+    [...faqList.children].forEach((row, index) => {
+      renderCounter(row.querySelector('[data-counter="question"]')!, draft.faq[index].question, LIMITS.question);
+      renderCounter(row.querySelector('[data-counter="answer"]')!, draft.faq[index].answer, LIMITS.answer);
+    });
+
+    const slug = editingSlug || slugify(draft.keyword) || 'expression-visee';
+    $('snippet-url').textContent = `${siteUrl}/blog/${slug}/`;
+    $('snippet-title').textContent = searchTitle(draft) || 'Titre de l’article';
+    $('snippet-description').textContent = draft.description.trim() || 'La description de l’article apparaîtra ici.';
+    $('save').textContent = fields.draft.checked ? 'Enregistrer le brouillon' : 'Publier';
+
+    renderChecks('required-checks', requiredChecks(draft));
+    renderChecks('advice-checks', adviceChecks(draft));
+  }
+
+  // Mise en forme : on insère la syntaxe Markdown autour de la sélection.
+  function format(kind: string) {
+    const area = fields.body;
+    const { selectionStart: start, selectionEnd: end, value } = area;
+    const selected = value.slice(start, end);
+    const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+    let replacement = selected;
+    let from = start;
+
+    if (kind === 'bold') replacement = `**${selected || 'texte en gras'}**`;
+    if (kind === 'italic') replacement = `*${selected || 'texte en italique'}*`;
+    if (kind === 'link') {
+      const url = prompt('Adresse du lien : /bilan/ ou /blog/faim-emotionnelle/ pour le site, https://… pour un autre site');
+      if (!url) return;
+      replacement = `[${selected || 'texte du lien'}](${url.trim()})`;
+    }
+    if (kind === 'h2' || kind === 'h3' || kind === 'list') {
+      const prefix = { h2: '## ', h3: '### ', list: '- ' }[kind];
+      from = lineStart;
+      replacement = prefix + value.slice(lineStart, end).replace(/^(#{1,6}|-)\s+/, '');
+    }
+
+    area.setRangeText(replacement, from, end, 'end');
+    area.focus();
+    dirty = true;
+    refresh();
+  }
+
+  // L'image est réduite dans le navigateur (1600px de large au plus) avant
+  // l'envoi : une photo de téléphone de 5 Mo devient un fichier de 200 Ko.
+  async function readImage(file: File) {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 1600 / bitmap.width);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    // Safari ne sait pas écrire de WebP et rendrait un PNG trop lourd : on passe alors en JPEG.
+    const webp = canvas.toDataURL('image/webp', 0.82);
+    const dataUrl = webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/jpeg', 0.82);
+    pendingImage = { data: dataUrl.slice(dataUrl.indexOf(',') + 1) };
+    const preview = $<HTMLImageElement>('image-preview');
+    preview.src = dataUrl;
+    preview.hidden = false;
+    refresh();
+  }
+
+  async function save(event: Event) {
+    event.preventDefault();
+    const button = $<HTMLButtonElement>('save');
+    const draft = fields.draft.checked;
+    button.disabled = true;
+    say('Enregistrement…');
+    try {
+      await api('save', {
+        slug: editingSlug,
+        keyword: fields.keyword.value,
+        title: fields.title.value,
+        seoTitle: fields.seoTitle.value,
+        description: fields.description.value,
+        category: fields.category.value,
+        cta: fields.cta.value,
+        coverAlt: fields.coverAlt.value,
+        body: fields.body.value,
+        faq: readFaq(),
+        pubDate: fields.pubDate.value,
+        updatedDate: fields.updatedDate.value,
+        draft,
+        image: pendingImage,
+        removeImage: fields.removeImage.checked,
+      });
+      dirty = false;
+      say(draft ? 'Brouillon enregistré.' : 'Article enregistré.');
+      await loadList();
+      if (!draft) watchDeploy();
+    } catch (error) {
+      say((error as Error).message, true);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  // ---- Branchements -------------------------------------------------
+
+  views.login.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    try {
+      csrf = (await api('login', { password: $<HTMLInputElement>('password').value })).csrf;
+      $<HTMLInputElement>('password').value = '';
+      $<HTMLInputElement>('password').type = 'password';
+      $('toggle-password').textContent = 'Afficher';
+      $('toggle-password').setAttribute('aria-pressed', 'false');
+      if (resumeEditor) {
+        resumeEditor = false;
+        show('editor');
+        say('Te revoilà : ton texte est intact, tu peux enregistrer à nouveau.');
+        return;
+      }
+      say('');
+      await loadList();
+    } catch (error) {
+      say((error as Error).message, true);
+    }
+  });
+
+  $('logout').addEventListener('click', async () => {
+    if (dirty && !confirm('Quitter sans enregistrer ce texte ?')) return;
+    await api('logout', {}).catch(() => {});
+    dirty = false;
+    say('');
+    show('login');
+  });
+
+  $('new-article').addEventListener('click', () => openEditor());
+  $('back').addEventListener('click', () => {
+    if (dirty && !confirm('Revenir à la liste sans enregistrer ce texte ?')) return;
+    dirty = false;
+    say('');
+    show('list');
+  });
+  $('add-question').addEventListener('click', () => {
+    addQuestion();
+    refresh();
+  });
+  views.editor.addEventListener('submit', save);
+  views.editor.addEventListener('input', () => {
+    dirty = true;
+    refresh();
+  });
+  fields.image.addEventListener('change', () => {
+    const file = fields.image.files?.[0];
+    if (file) readImage(file).catch(() => say('Cette image ne peut pas être lue.', true));
+  });
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-format]')
+    .forEach((button) => button.addEventListener('click', () => format(button.dataset.format ?? '')));
+
+  // Afficher ou masquer le mot de passe pendant la saisie.
+  $('toggle-password').addEventListener('click', (event) => {
+    const field = $<HTMLInputElement>('password');
+    const button = event.currentTarget as HTMLButtonElement;
+    const visible = field.type === 'password';
+    field.type = visible ? 'text' : 'password';
+    button.textContent = visible ? 'Masquer' : 'Afficher';
+    button.setAttribute('aria-pressed', String(visible));
+    field.focus();
+  });
+
+  window.addEventListener('beforeunload', (event) => {
+    if (dirty) event.preventDefault();
+  });
+
+  // Écrire prend du temps : le serveur oublie une session inactive après une vingtaine de minutes.
+  setInterval(() => {
+    if (!views.editor.hidden) api('session').catch(() => {});
+  }, 600000);
+
+  // Au chargement : déjà connectée ou non ?
+  api('session')
+    .then(async (session) => {
+      csrf = session.csrf ?? '';
+      if (session.authenticated) await loadList();
+      else show('login');
+    })
+    .catch((error) => {
+      show('login');
+      say((error as Error).message, true);
+    });
+</script>

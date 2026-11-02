@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -80,6 +80,21 @@ beforeAll(async () => {
 
 const pageFor = (url: string) => pages.find((p) => p.url === url);
 
+/*
+ * Les articles publies, lus dans le depot. Florie en ajoute et en retire depuis
+ * le back-office : une liste ecrite ici ferait tomber les tests au premier
+ * article supprime, et laisserait les nouveaux sans verification.
+ */
+const publishedSlugs = readdirSync(new URL('../src/content/blog/', import.meta.url))
+  .filter((name) => name.endsWith('.md'))
+  .filter(
+    (name) =>
+      !/^draft:\s*true\s*$/m.test(
+        readFileSync(new URL(`../src/content/blog/${name}`, import.meta.url), 'utf-8').split(/^---$/m)[1]
+      )
+  )
+  .map((name) => name.slice(0, -3));
+
 describe('pages generees', () => {
   it('produit toutes les pages attendues', () => {
     const expected = [
@@ -94,6 +109,7 @@ describe('pages generees', () => {
       '/contact/',
       '/blog/',
       '/mentions-legales/',
+      '/admin/',
     ];
     const built = pages.map((p) => p.url);
 
@@ -106,7 +122,9 @@ describe('pages generees', () => {
     const articles = pages.filter(
       (p) => p.url.startsWith('/blog/') && p.url !== '/blog/'
     );
-    expect(articles.length).toBeGreaterThanOrEqual(4);
+    expect(articles.map((p) => p.url).sort()).toEqual(
+      publishedSlugs.map((slug) => `/blog/${slug}/`).sort()
+    );
   });
 
   it('produit une page 404 et un sitemap', () => {
@@ -154,10 +172,17 @@ describe('liens et ressources', () => {
     const broken: string[] = [];
 
     for (const page of pages) {
-      for (const [, href] of page.html.matchAll(
-        /(?:href|src|srcset)="(\/[^"#?]*)"/g
+      for (const [, attribute, value] of page.html.matchAll(
+        /(href|src|srcset)="(\/[^"#?]*)"/g
       )) {
-        if (!targets.has(href)) broken.push(`${page.url} -> ${href}`);
+        // Un srcset liste plusieurs fichiers, chacun suivi de sa largeur
+        const urls =
+          attribute === 'srcset'
+            ? value.split(',').map((source) => source.trim().split(/\s+/)[0])
+            : [value];
+        for (const url of urls) {
+          if (!targets.has(url)) broken.push(`${page.url} -> ${url}`);
+        }
       }
     }
 
@@ -977,10 +1002,20 @@ describe('le referencement', () => {
     expect(robots).toContain('Sitemap: https://natureetdietetique.com/sitemap-index.xml');
   });
 
-  it('ne demande a aucune page d\u2019etre ignoree', () => {
-    for (const page of indexables()) {
+  it('ne demande a aucune page d\u2019etre ignoree, hors du back-office', () => {
+    for (const page of indexables().filter((p) => p.url !== '/admin/')) {
       expect(page.html, page.url).not.toMatch(/<meta name="robots"[^>]*noindex/);
     }
+  });
+
+  /*
+   * Pas de « Disallow » dans robots.txt pour autant : Google doit pouvoir lire
+   * la page pour y trouver le noindex.
+   */
+  it('garde le back-office hors des moteurs et du plan du site', () => {
+    expect(pageFor('/admin/')!.html).toMatch(/<meta name="robots" content="noindex, nofollow"/);
+    expect(readFileSync(join(DIST, 'sitemap-0.xml'), 'utf-8')).not.toContain('/admin/');
+    expect(readFileSync(join(DIST, 'robots.txt'), 'utf-8')).not.toContain('admin');
   });
 
   it('decrit le cabinet sur chaque page, avec les coordonnees du site', () => {
@@ -1020,24 +1055,27 @@ describe('le referencement', () => {
     }
   });
 
-  describe.each(['batch-cooking-dimanche', 'faim-emotionnelle', 'lire-une-etiquette', 'petit-dejeuner-rassasiant'])(
+  describe.each(publishedSlugs)(
     'l\u2019article %s',
     (slug) => {
       const html = () => pageFor(`/blog/${slug}/`)!.html;
       const canonical = `https://natureetdietetique.com/blog/${slug}/`;
+      /* Comme la lit blog.php : le build courbe les apostrophes et le gras coupe les mots. */
       const prose = () =>
         decode(
           (html().split('class="prose article-prose"')[1] ?? '')
             .split('class="author')[0]
             .replace(/<[^>]+>/g, ' ')
-        );
+        )
+          .replace(/\u2019/g, "'")
+          .replace(/\s+/g, ' ');
 
       it('vise son expression dans le titre, la description et le texte', () => {
-        const keyword = metaOf(html(), 'article:tag').toLowerCase();
+        const keyword = metaOf(html(), 'article:tag').toLowerCase().replace(/\u2019/g, "'");
 
         expect(keyword.length).toBeGreaterThan(2);
-        expect(titleOf(html()).toLowerCase()).toContain(keyword);
-        expect(descriptionOf(html()).toLowerCase()).toContain(keyword);
+        expect(titleOf(html()).toLowerCase().replace(/\u2019/g, "'")).toContain(keyword);
+        expect(descriptionOf(html()).toLowerCase().replace(/\u2019/g, "'")).toContain(keyword);
         expect(prose().toLowerCase()).toContain(keyword);
       });
 
@@ -1050,7 +1088,8 @@ describe('le referencement', () => {
         const [post] = ofType(html(), 'BlogPosting');
         const [person] = ofType(html(), 'Person');
 
-        expect(post.headline).toBe(titleOf(html()));
+        // Un titre court recoit le nom du site en plus dans la balise <title>
+        expect(titleOf(html()).startsWith(post.headline)).toBe(true);
         expect(post.mainEntityOfPage).toBe(canonical);
         expect(post.datePublished).toMatch(/^\d{4}-\d{2}-\d{2}T/);
         expect(post.author['@id']).toBe(person['@id']);

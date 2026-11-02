@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 4321
+    },
+    {
+      "name": "back-office",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "bo"],
+      "port": 4400
     }
   ]
 }

@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# secrets : le fichier de configuration du back-office ne part jamais sur GitHub
+public/api/config.php
+
 # macOS-specific files
 .DS_Store
 

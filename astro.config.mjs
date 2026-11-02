@@ -11,5 +11,6 @@ export default defineConfig({
    * jamais apparaitre comme adresse officielle d'une page.
    */
   site: 'https://natureetdietetique.com',
-  integrations: [sitemap()],
+  // Le back-office n'a rien a faire dans le plan du site : il demande a rester hors des moteurs.
+  integrations: [sitemap({ filter: (page) => !page.endsWith('/admin/') })],
 });

@@ -1,0 +1,8 @@
+# Le sous-domaine du back-office n'héberge rien : tout ce qui arrive ici part
+# vers la page /admin/ du site. À déposer une fois, par FTP, dans le dossier du
+# sous-domaine (celui qui contient cgi-bin). 302 et non 301 : le navigateur ne
+# garde pas la redirection en mémoire. Le nom du sous-domaine reste à décider :
+# voir DEPLOIEMENT.md.
+Options -Indexes
+RewriteEngine On
+RewriteRule ^ https://natureetdietetique.com/admin/ [L,R=302]
