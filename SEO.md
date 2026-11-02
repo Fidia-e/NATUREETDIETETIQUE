@@ -94,7 +94,11 @@ relève de l'écriture et ne se vérifie pas automatiquement.
 - **`updatedDate`** quand on retouche un article sur le fond : Google favorise
   les contenus tenus à jour.
 
-Le modèle à copier est `src/content/blog/modele-article.md` (en brouillon).
+Florie écrit sur `/admin/` : l'éditeur compte les caractères, cherche l'expression
+visée, montre l'aperçu Google et coche ces repères à mesure. `blog.php` refuse de
+publier ce qui ferait échouer le build ou les tests, et son adresse vient de
+l'expression visée (une expression, un article). Pour écrire à la main, le modèle
+à copier est `src/content/blog/modele-article.md` (en brouillon).
 
 ## Ce que le code fait déjà
 

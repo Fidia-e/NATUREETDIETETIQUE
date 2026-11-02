@@ -1,4 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { countWords } from './article-rules';
+
+export { frenchSpacing } from './article-rules';
 
 export type Post = CollectionEntry<'blog'>;
 
@@ -10,12 +13,7 @@ export async function getPosts(): Promise<Post[]> {
 
 /** Nombre de mots du texte, sans la syntaxe Markdown. */
 export function wordCount(post: Post): number {
-  const text = (post.body ?? '')
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/[#>*_`|]/g, ' ');
-  // Un tiret de liste ou de tableau n'est pas un mot : il faut une lettre ou un chiffre
-  return text.split(/\s+/).filter((token) => /[\p{L}\d]/u.test(token)).length;
+  return countWords(post.body ?? '');
 }
 
 /**
@@ -34,14 +32,6 @@ const dateFormat = new Intl.DateTimeFormat('fr-CH', {
 });
 
 export const formatDate = (date: Date) => dateFormat.format(date);
-
-/**
- * Espaces insecables de la typographie francaise : devant : ; ! ? et », apres «.
- * Sans elles, la ponctuation double peut se retrouver seule en debut de ligne.
- * Le texte source reste ecrit avec des espaces ordinaires.
- */
-export const frenchSpacing = (text: string) =>
-  text.replace(/ ([:;!?»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');
 
 /** Titre que Google affichera pour l'article. */
 export const searchTitle = (post: Post) => post.data.seoTitle ?? post.data.title;

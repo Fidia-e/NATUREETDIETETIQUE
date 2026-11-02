@@ -17,6 +17,8 @@ npm install
 npm run dev      # http://localhost:4321
 npm run build    # génère dist/
 npm run preview  # sert dist/ en local
+npm run bo       # essai du back-office : http://localhost:4400/admin/, mot de passe test
+npm run password # choisit le mot de passe du back-office (écrit son empreinte dans public/api/config.php)
 ```
 
 ## Vérifications avant commit
@@ -27,8 +29,8 @@ npm run check && npm test
 
 - `npm run check` lance `astro check` : types TypeScript et diagnostics sur les
   fichiers `.astro`.
-- `npm test` construit le site puis lance Vitest : 150 tests répartis en trois
-  fichiers.
+- `npm test` construit le site puis lance Vitest : 278 tests répartis en
+  quatre fichiers. PHP est nécessaire, le back-office tourne pour de vrai.
 - `npm run eco` construit le site et affiche la note EcoIndex de chaque page.
 
 ### Ce que couvrent les tests
@@ -37,7 +39,8 @@ npm run check && npm test
 | --- | --- |
 | `tests/quiz-scoring.test.ts` | Le calcul du compte rendu : répartition par axe, seuils, choix du titre, cohérence des questions |
 | `tests/quiz-funnel.test.ts` | Le parcours réel : verrouillage des étapes, retour arrière, compte rendu, consentement obligatoire, envoi et repli e-mail |
-| `tests/site-integrity.test.ts` | Le site généré : pages attendues, liens internes, métadonnées, alternatives textuelles, absence de référence au droit français, contraste du pied de page, note EcoIndex, et référencement (titres, descriptions, données structurées, articles du blog) |
+| `tests/site-integrity.test.ts` | Le site généré : pages attendues, liens internes, métadonnées, alternatives textuelles, absence de référence au droit français, contraste du pied de page, note EcoIndex, et référencement (titres, descriptions, données structurées, chacun des articles publiés) |
+| `tests/back-office.test.ts` | Le vrai `blog.php` sur le serveur d'essai : mêmes verdicts que le schéma, nettoyage, règles de publication, aller-retour sur les articles du dépôt, connexion, fichiers de mise en ligne |
 
 Le quiz est découpé en trois modules dans `src/lib/` : les données, le calcul
 (fonctions pures) et le contrôleur DOM. Le composant `FunnelQuiz.astro` ne fait
@@ -80,20 +83,50 @@ composant [`Photo.astro`](src/components/Photo.astro) sert les deux formats.
 ## Articles
 
 Un fichier Markdown par article dans `src/content/blog/`. Le nom du fichier
-devient l'URL. L'en-tête attendu est décrit dans
-[`src/content.config.ts`](src/content.config.ts) : `title`, `description`,
-`pubDate`, `category`, `readingTime`, et `draft` pour masquer un brouillon.
+devient l'URL. Les champs sont décrits dans
+[`src/content.config.ts`](src/content.config.ts), leurs règles d'écriture dans
+[`SEO.md`](SEO.md).
+
+## Le back-office
+
+Florie écrit ses articles sur `/admin/`, sans passer par le code. Rien ne tourne
+côté serveur pour les visiteurs : le site reste statique.
+
+1. Elle écrit et clique sur « Publier ».
+2. [`public/api/blog.php`](public/api/blog.php) vérifie sa session et l'article,
+   puis écrit le fichier et son image dans ce dépôt, en un seul commit sur `main`
+   (API GitHub).
+3. Le commit déclenche [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) :
+   build, puis envoi FTP sur o2switch.
+
+`npm run bo` n'envoie rien sur GitHub : un faux GitHub
+([`tools/local-server.php`](tools/local-server.php)) écrit les articles
+directement dans `src/content/blog`. Ce sont de vrais fichiers : supprimez un
+article d'essai depuis la liste du back-office avant de commiter. Le site servi
+sur le port 4400 ne change qu'au prochain lancement de `npm run bo`.
+
+Trois fichiers portent les mêmes règles : le schéma, `blog.php` et
+[`src/lib/article-rules.ts`](src/lib/article-rules.ts) pour les compteurs et les
+repères de l'éditeur. Si une limite change, changez les trois : le test tombe
+sinon. Ce que les tests exigent d'une page publiée (expression visée, liens
+valides, mots réservés) est aussi vérifié par `blog.php`, pour qu'un article de
+Florie ne fasse jamais tomber la suite.
+
+La mise en place (secrets, jeton, mot de passe) est décrite dans
+[`DEPLOIEMENT.md`](DEPLOIEMENT.md).
 
 ## Structure
 
 ```
 src/
   components/   Composants réutilisables (en-tête, pied de page, quiz, visuels)
-  content/blog/ Les articles, en Markdown
+  content/blog/ Les articles, en Markdown, écrits par le back-office
   layouts/      Le gabarit commun à toutes les pages
   pages/        Une page par fichier, l'URL suit le chemin
   styles/       Les jetons de design tirés du logo
+public/api/     Le back-office côté serveur (PHP)
 public/images/  Le logo détouré
+tools/          Le serveur d'essai du back-office et le choix du mot de passe
 ```
 
 ## Sobriété

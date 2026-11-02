@@ -1,0 +1,61 @@
+# Mise en ligne automatique : chaque commit sur `main` reconstruit le site et
+# l'envoie sur o2switch. C'est aussi ce qui publie un article : le
+# back-office (/admin/) écrit l'article dans le dépôt, ce qui déclenche ce
+# fichier.
+name: Mise en ligne
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Deux enregistrements rapprochés : la seconde mise en ligne attend la
+# première au lieu de se croiser avec elle sur le serveur.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Aucun dossier par défaut : le compte o2switch peut héberger d'autres
+    # sites, et un mauvais dossier écraserait leurs fichiers. Tant que la
+    # variable FTP_SERVER_DIR n'existe pas, rien ne part (voir DEPLOIEMENT.md).
+    if: ${{ vars.FTP_SERVER_DIR != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # Les images déjà converties sont gardées d'une fois sur l'autre : seule
+      # l'image d'un nouvel article est traitée.
+      - uses: actions/cache@v4
+        with:
+          path: node_modules/.astro
+          key: astro-assets-${{ hashFiles('src/content/blog/images/**') }}
+          restore-keys: astro-assets-
+
+      - run: npm ci
+
+      - run: npm run build
+
+      # Seuls les fichiers modifiés sont envoyés. `config.php`, déposé à la
+      # main sur le serveur, n'est jamais touché.
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: ${{ vars.FTP_SERVER_DIR }}
+          exclude: |
+            **/.DS_Store
+            api/config.php

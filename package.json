@@ -13,7 +13,9 @@
     "check": "astro check",
     "test": "astro build && vitest run",
     "test:watch": "vitest",
-    "eco": "astro build && node scripts/ecoindex.mjs"
+    "eco": "astro build && node scripts/ecoindex.mjs",
+    "bo": "npm run build && BO_LOCAL_CONFIG=\"$PWD/tools/local-config.php\" PHP_CLI_SERVER_WORKERS=4 php -S localhost:4400 -t dist tools/local-server.php",
+    "password": "php tools/set-password.php"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -27,6 +29,7 @@
     "@happy-dom/global-registrator": "^21.0.4",
     "happy-dom": "^21.0.4",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "yaml": "^2.9.1"
   }
 }
