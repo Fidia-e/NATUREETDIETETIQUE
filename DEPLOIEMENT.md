@@ -15,6 +15,50 @@ refuse de démarrer tant qu'il le trouve.
 | Mot de passe de Florie | `npm run password` | 2 |
 | Nom du sous-domaine du back-office, s'il y en a un | cPanel | 3 |
 
+## Pour l'instant : la préprod sur `test.natureetdietetique.ch`
+
+Le site part d'abord sur `https://test.natureetdietetique.ch`, avec le
+back-office sur `/admin/`. Le build est le même que pour le vrai site : seul le
+dossier d'envoi change. Suivre les étapes 1, 2 et 4, avec ces différences :
+
+1. **Dans cPanel**, créer le sous-domaine `test.natureetdietetique.ch` et noter
+   son dossier. Vérifier que son certificat https est actif. Si
+   `natureetdietetique.ch` redirige déjà vers le `.com`, cette redirection ne
+   doit pas s'appliquer au sous-domaine, et `test` doit pointer vers o2switch
+   dans les DNS du domaine.
+2. **`FTP_SERVER_DIR`** vise le dossier de ce sous-domaine. Avec un compte FTP
+   limité à ce dossier, sa valeur est `./`.
+3. **`config.php`** se dépose dans le dossier `api/` de ce sous-domaine.
+4. **L'étape 3** ne sert pas encore.
+
+Vérifier ensuite :
+
+| À tester | Attendu |
+| --- | --- |
+| `http://test.natureetdietetique.ch/bilan/` | une seule redirection vers `https://test.natureetdietetique.ch/bilan/`, pas vers le `.com` |
+| une page de la préprod | l'en-tête `X-Robots-Tag: noindex, nofollow` |
+| `https://test.natureetdietetique.ch/api/config.php` | accès refusé (403) |
+| `https://test.natureetdietetique.ch/admin/` | la connexion, puis la liste des articles |
+| publier un article d'essai depuis `/admin/` | un commit sur `main`, puis l'article sur la préprod une à deux minutes plus tard |
+
+La préprod reste publique, seulement hors des moteurs de recherche. Ses balises
+canoniques et son plan du site annoncent déjà le `.com` : c'est voulu, ce sont
+les fichiers du vrai site.
+
+**Les articles d'essai sont de vrais commits sur `main`.** Ils partiront avec le
+vrai site s'ils ne sont pas supprimés depuis `/admin/` avant le passage en
+production.
+
+### Passer en production
+
+1. Supprimer les articles d'essai depuis `/admin/`.
+2. Dans cPanel, faire pointer `natureetdietetique.com` vers son dossier.
+3. Déposer un `config.php` dans le dossier `api/` de ce site, avec le mot de
+   passe de Florie.
+4. Changer `FTP_SERVER_DIR` et le compte FTP s'il était limité au dossier de
+   test, puis lancer le workflow à la main : aucun code ne change.
+5. Faire les vérifications de l'étape 5.
+
 ## 1. La GitHub Action
 
 Dans le dépôt `Fidia-e/NATUREETDIETETIQUE` : Settings → Secrets and variables →

@@ -958,7 +958,25 @@ describe('la mise en ligne', () => {
     const htaccess = read('public/.htaccess');
     expect(htaccess).not.toMatch(/DirectorySlash\s+Off/);
     expect(htaccess).not.toMatch(/\/\$\s+\/\$1/);
-    expect(htaccess).toContain('https://natureetdietetique.com%{REQUEST_URI}');
+  });
+
+  /*
+   * Le meme build sert la preprod et le vrai site. Un hote ecrit en dur
+   * enverrait les visiteurs de la preprod sur le vrai site des qu'ils arrivent
+   * en http, et un noindex mal cible sortirait le vrai site de Google.
+   */
+  it('garde la preprod sur son adresse et hors des moteurs, sans toucher au vrai site', () => {
+    const htaccess = read('public/.htaccess');
+    expect(htaccess).toContain('https://%1%{REQUEST_URI}');
+    expect(htaccess).toContain('Header always set X-Robots-Tag "noindex, nofollow" env=PREPROD');
+
+    const hostRule = htaccess.match(/^SetEnvIfNoCase Host (\S+) PREPROD$/m);
+    expect(hostRule).not.toBeNull();
+    const preprodHost = new RegExp(hostRule![1], 'i');
+    expect(preprodHost.test('test.natureetdietetique.ch')).toBe(true);
+    expect(preprodHost.test('natureetdietetique.com')).toBe(false);
+    expect(preprodHost.test('www.natureetdietetique.com')).toBe(false);
+    expect(preprodHost.test('natureetdietetique.ch')).toBe(false);
   });
 
   it('ne touche jamais a config.php sur le serveur, ni a un dossier devine', () => {
