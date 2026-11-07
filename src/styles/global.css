@@ -488,3 +488,14 @@ textarea,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* La marque est déposée. Le ® se met en exposant, petit et haut : à la
+   taille du texte il se lirait comme une lettre du nom, et la signature
+   finirait sur un mot inconnu.
+
+   line-height: 0 pour qu'il n'écarte pas les lignes du paragraphe. */
+sup {
+  font-size: 0.6em;
+  vertical-align: super;
+  line-height: 0;
+}
