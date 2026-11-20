@@ -27,7 +27,6 @@
     color: var(--signature-text, inherit);
     letter-spacing: 0.01em;
     text-align: center;
-    text-wrap: balance;
   }
 
   .signature a {
@@ -48,22 +47,14 @@
    * Une seule ligne tant qu'elle tient, et quand la place manque la coupure
    * tombe apres « par ».
    *
-   * Les deux parties sont insecables : le seul endroit ou le navigateur peut
-   * passer a la ligne est l'espace qui les separe. Pas de seuil en pixels a
-   * deviner, la bascule se fait d'elle-meme a la largeur exacte ou la phrase
-   * cesse de tenir.
+   * Seul le nom est insecable : le navigateur coupe au dernier espace
+   * possible, celui qui le precede. La phrase garde le droit de se replier,
+   * sinon elle deborderait chez qui grossit les textes.
+   *
+   * Pas de `text-wrap: balance` : il egalise les deux lignes et fait
+   * descendre « par » avec le nom [vu a 375 px, 2026-11-20].
    */
   .signature__name {
     white-space: nowrap;
-  }
-
-  /*
-   * Sous 23 rem meme le debut de phrase ne tient plus : on lui rend le droit
-   * de se replier, plutot que de le laisser deborder du cadre.
-   */
-  @media (max-width: 23rem) {
-    .signature__lead {
-      white-space: normal;
-    }
   }
 </style>

@@ -395,6 +395,37 @@ describe('charte appliquee', () => {
     }
   });
 
+  /*
+   * Le \u00ae est a la taille du texte, a peine sureleve [Fidia, 2026-11-19] :
+   * a .6em en exposant classique, il ne se lisait pas. Il reste hors du lien,
+   * sinon le soulignement court sous le signe et le point.
+   */
+  it('ecrit le \u00ae a la taille du texte, hors du lien', () => {
+    const rules = [...css.matchAll(/(?:^|[}\s,])sup\{([^}]*)\}/g)].map((m) => m[1]);
+    expect(rules.length, 'aucune regle sur sup').toBeGreaterThan(0);
+    for (const rule of rules) {
+      expect(rule).toMatch(/font-size:1em/);
+      expect(rule).toMatch(/vertical-align:\.15em/);
+      expect(rule).toMatch(/line-height:0/);
+    }
+    for (const page of pages) {
+      // Astro ajoute ses attributs de portee : <sup data-astro-cid-\u2026>
+      expect(page.html, page.url).toMatch(/Maison Sacr\u00e9e M\u00f4me<\/a\s*><sup[^>]*>\u00ae<\/sup>\./);
+    }
+  });
+
+  /*
+   * La coupure tombe apres \u00ab par \u00bb, et nulle part ailleurs. `text-wrap:
+   * balance` egalisait les lignes et faisait descendre \u00ab par \u00bb avec le nom.
+   */
+  it('coupe la signature apres \u00ab par \u00bb, seul le nom etant insecable', () => {
+    const rules = [...css.matchAll(/\.signature(?:\[[^\]]*\])?\{([^}]*)\}/g)].map((m) => m[1]);
+    expect(rules.length, 'aucune regle sur .signature').toBeGreaterThan(0);
+    for (const rule of rules) expect(rule).not.toMatch(/text-wrap:\s*(balance|pretty)/);
+    expect(css).toMatch(/\.signature__name(?:\[[^\]]*\])?\{[^}]*white-space:nowrap/);
+    expect(css).not.toMatch(/\.signature__lead(?:\[[^\]]*\])?\{[^}]*white-space:nowrap/);
+  });
+
   it('ne reprend pas la signature perimee de l\u2019ancien julie-eggen', () => {
     for (const page of pages) {
       expect(page.html, page.url).not.toContain('linkedin.com/in/fidiaelbouanani');
