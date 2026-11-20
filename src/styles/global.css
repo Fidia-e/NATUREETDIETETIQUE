@@ -489,13 +489,15 @@ textarea,
   }
 }
 
-/* La marque est déposée. Le ® se met en exposant, petit et haut : à la
-   taille du texte il se lirait comme une lettre du nom, et la signature
-   finirait sur un mot inconnu.
-
-   line-height: 0 pour qu'il n'écarte pas les lignes du paragraphe. */
+/* La marque est déposée : le ® suit le nom, en exposant, hors du lien. */
 sup {
-  font-size: 0.6em;
-  vertical-align: super;
+  /* 1em : la taille du texte, au minimum [Fidia, 2026-11-19, « le ® est trop
+     petit », puis « je veux qu'il soit grand minimum comme ça »]. À .6em, il
+     ne se lisait pas. */
+  font-size: 1em;
+  /* À peine surélevé, presque à hauteur des lettres [Fidia, 2026-11-19,
+     « le 3e » sur trois essais]. */
+  vertical-align: 0.15em;
+  /* Sans ça, l'exposant écarte les lignes du paragraphe autour de lui. */
   line-height: 0;
 }
