@@ -358,7 +358,8 @@ const steps = [
 
 <style>
   .hero {
-    padding-block: var(--space-2xl);
+    padding-top: var(--space-2xl);
+    padding-bottom: var(--space-2xl);
     background:
       radial-gradient(
         60rem 32rem at 85% -10%,
@@ -592,7 +593,8 @@ const steps = [
     position: absolute;
     left: 0; right: 0; inset-inline: 0;
     bottom: 0;
-    padding-block: var(--space-xl) var(--space-sm);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-sm);
     background: linear-gradient(
       to top,
       color-mix(in srgb, var(--color-green-deep) 80%, transparent),
@@ -605,6 +607,8 @@ const steps = [
   .band__caption span {
     display: block;
     width: min(100% - 2.5rem, var(--width-content));
+    margin-left: auto;
+    margin-right: auto;
     margin-inline: auto;
     font-family: var(--font-ui);
     font-style: italic;
@@ -677,6 +681,8 @@ const steps = [
 
     .hero__visual {
       max-width: 22rem;
+      margin-left: auto;
+      margin-right: auto;
       margin-inline: auto;
     }
 

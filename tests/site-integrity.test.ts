@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
+import { transform } from 'lightningcss';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { mesurer, noteDe } from '../scripts/ecoindex.mjs';
 import { contact, ecoIndex, practitioner } from '../src/config';
@@ -20,6 +21,13 @@ interface Page {
 
 let pages: Page[] = [];
 let files = new Set<string>();
+/**
+ * Le CSS tel qu'il part sur le serveur, non minifie (voir astro.config.mjs).
+ * C'est lui qu'on lit pour les raccourcis : la version minifiee les
+ * regrouperait.
+ */
+let shippedCss = '';
+/** Le meme, minifie : une ecriture stable pour comparer des regles. */
 let css = '';
 
 async function walk(dir: string): Promise<string[]> {
@@ -62,7 +70,12 @@ beforeAll(async () => {
       )
     );
 
-  css = [...externes, ...inlines].join('\n');
+  shippedCss = [...externes, ...inlines].join('\n');
+  css = transform({
+    filename: 'site.css',
+    code: Buffer.from(shippedCss),
+    minify: true,
+  }).code.toString();
 
   pages = all
     .filter((f) => f.endsWith('.html'))
@@ -426,6 +439,22 @@ describe('charte appliquee', () => {
     expect(css).not.toMatch(/\.signature__lead(?:\[[^\]]*\])?\{[^}]*white-space:nowrap/);
   });
 
+  /*
+   * La signature est a mi-distance du filet et du bas de la page : le meme
+   * espace au-dessus et en dessous, et rien sous elle. On lit le CSS envoye,
+   * la minification fusionnerait les deux proprietes.
+   */
+  it('laisse autant d\u2019espace au-dessus de la signature qu\u2019en dessous', () => {
+    const plain = shippedCss.replace(/\/\*[\s\S]*?\*\//g, '');
+    const bar = plain.match(/\.footer__bar(?:\[[^\]]*\])?\s*\{([^}]*)\}/);
+    expect(bar, 'regle .footer__bar introuvable').not.toBeNull();
+    const top = bar![1].match(/padding-top:\s*([^;]+);/)?.[1].trim();
+    const bottom = bar![1].match(/padding-bottom:\s*([^;]+);/)?.[1].trim();
+    expect(top).toBe('2rem');
+    expect(bottom).toBe(top);
+    expect(bar![1]).toMatch(/margin-bottom:\s*0;/);
+  });
+
   it('ne reprend pas la signature perimee de l\u2019ancien julie-eggen', () => {
     for (const page of pages) {
       expect(page.html, page.url).not.toContain('linkedin.com/in/fidiaelbouanani');
@@ -490,6 +519,17 @@ describe('sobriete numerique', () => {
 
   it('annonce une note coherente avec le pire score mesure', () => {
     expect(noteDe(ecoIndex.worstScore)).toBe(ecoIndex.grade);
+  });
+
+  /*
+   * Le score affiche dans les mentions legales ne doit jamais etre meilleur
+   * que la realite : il annoncait 82,4 alors que /bilan/ mesurait 82,2.
+   */
+  it('n’annonce jamais un score meilleur que la page la moins bien notee', async () => {
+    const scores = await Promise.all(
+      pages.map((p) => p.url).filter((u) => !u.endsWith('.html')).map(async (u) => (await mesurer(u)).score)
+    );
+    expect(ecoIndex.worstScore).toBeLessThanOrEqual(Math.min(...scores));
   });
 
   it('affiche le badge et son explication', () => {
@@ -1173,6 +1213,46 @@ describe('le referencement', () => {
  * le code. Il en restait trois, dans un article et deux formulaires ; ce test
  * empeche qu'un nouveau texte colle depuis ailleurs en ramene.
  */
+/*
+ * Un moteur qui ne connait pas un raccourci jette la declaration entiere.
+ * On lit le CSS tel qu'il part : le 8 novembre, les sources etaient
+ * corrigees mais la minification regroupait de nouveau `inset`.
+ */
+describe('les raccourcis CSS', () => {
+  const rules = () =>
+    [...shippedCss.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]);
+
+  it('n’envoie aucun raccourci recent, seulement les proprietes separees', () => {
+    const banned = /(?:^|[;\s])(inset|place-items|place-content|place-self|padding-block|padding-inline)\s*:/;
+    const offenders = rules().filter((r) => banned.test(r));
+    expect(offenders).toEqual([]);
+  });
+
+  it('double chaque propriete logique de son repli physique, place avant elle', () => {
+    const fallbacks: Record<string, [string, string]> = {
+      'margin-inline': ['margin-left', 'margin-right'],
+      'margin-block': ['margin-top', 'margin-bottom'],
+      'inset-inline': ['left', 'right'],
+      'inset-block': ['top', 'bottom'],
+    };
+    let checked = 0;
+    for (const rule of rules()) {
+      for (const [logical, physical] of Object.entries(fallbacks)) {
+        const at = rule.search(new RegExp(`(?:^|[;\\s])${logical}\\s*:`));
+        if (at === -1) continue;
+        checked++;
+        for (const p of physical) {
+          const before = rule.slice(0, at);
+          expect(before, `${logical} sans ${p} avant lui : ${rule.trim()}`).toMatch(
+            new RegExp(`(?:^|[;\\s])${p}\\s*:`)
+          );
+        }
+      }
+    }
+    expect(checked, 'aucune propriete logique trouvee').toBeGreaterThan(0);
+  });
+});
+
 describe('la typographie', () => {
   it('n’emploie jamais de tiret cadratin', () => {
     for (const page of pages) {
