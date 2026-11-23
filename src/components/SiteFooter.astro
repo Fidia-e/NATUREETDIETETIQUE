@@ -111,7 +111,8 @@ const parcours = [
   .footer__group > *,
   .footer__group :global(.eco) {
     display: block;
-    padding-block: 0.55rem;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
   }
 
   .footer address {
@@ -131,6 +132,8 @@ const parcours = [
      * laisse croire, ce qui laissait 94 px de vide en haut contre 67 en bas.
      * La correction est en em, pour suivre la taille fluide du texte.
      */
+    margin-top: calc(var(--wordmark-gap) - 0.122em);
+    margin-bottom: calc(var(--wordmark-gap) + 0.122em);
     margin-block: calc(var(--wordmark-gap) - 0.122em)
       calc(var(--wordmark-gap) + 0.122em);
     font-family: var(--font-display);
@@ -151,7 +154,11 @@ const parcours = [
   /* ---- La barre du bas ---- */
 
   .footer__bar {
-    padding-block: 1.1rem 1.25rem;
+    /* Le meme espace au-dessus et en dessous : la signature a mi-distance du
+       filet et du bas de la page, sans etre tassee contre le bord. */
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    margin-bottom: 0;
     /* Un trait a peine pose, comme chez la reference */
     border-top: 1px solid rgb(234 242 236 / 0.14);
 

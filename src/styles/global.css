@@ -273,6 +273,8 @@ textarea,
 
 .container {
   width: min(100% - 2.5rem, var(--width-content));
+  margin-left: auto;
+  margin-right: auto;
   margin-inline: auto;
 }
 
@@ -292,11 +294,13 @@ textarea,
 }
 
 .section {
-  padding-block: var(--space-2xl);
+  padding-top: var(--space-2xl);
+  padding-bottom: var(--space-2xl);
 }
 
 .section--tight {
-  padding-block: var(--space-xl);
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-xl);
 }
 
 .section--wash {
