@@ -1277,6 +1277,29 @@ describe('les raccourcis CSS', () => {
   });
 });
 
+/*
+ * Jamais de trait d'accent sur un seul cote d'une carte, d'un encart ou d'une
+ * citation [Fidia, 2026-11-24, « ne mets JAMAIS ces border qui trahissent
+ * que c'est fait par toi »]. Restent permis les filets fins et neutres (celui
+ * de la signature) et le soulignement du lien actif, qui est en bas.
+ */
+describe('les bordures', () => {
+  it('ne pose aucun trait d’accent sur un seul cote d’un bloc', () => {
+    const plain = shippedCss.replace(/\/\*[\s\S]*?\*\//g, '');
+    const declarations = [
+      ...plain.matchAll(/border-(?:top|left|right|inline-start|inline-end|block-start)(?:-width|-color)?\s*:\s*([^;}]+)/g),
+    ].map((m) => m[0].trim());
+
+    const offenders = declarations.filter((d) => {
+      const value = d.split(':')[1];
+      const thick = /(^|\s)([2-9]|\d{2,})(\.\d+)?px/.test(value);
+      const colored = /--color-(gold|green|taupe)|--tone|#(b4541f|fab311|599e33|156839)/.test(value);
+      return thick || colored;
+    });
+    expect(offenders).toEqual([]);
+  });
+});
+
 describe('la typographie', () => {
   it('n’emploie jamais de tiret cadratin', () => {
     for (const page of pages) {
