@@ -13,6 +13,12 @@ interface Props {
   /** Durée affichée sur la vignette, par exemple "2 min 21". */
   duration?: string;
   label?: string;
+  /**
+   * Image d'aperçu, nom de base dans /public/images (AVIF et JPEG). C'est
+   * l'image que le lecteur montre lui-même avant la lecture : le visiteur
+   * reconnaît la vidéo avant de la lancer.
+   */
+  poster?: string;
 }
 
 const {
@@ -20,93 +26,146 @@ const {
   title,
   duration,
   label = 'Lancer la vidéo',
+  poster,
 } = Astro.props;
 ---
 
+<figure class="video-block">
 <div class="video" data-video data-src={src} data-title={title}>
+  {
+    poster && (
+      <picture class="video__poster">
+        <source srcset={`/images/${poster}.avif`} type="image/avif" />
+        <img
+          src={`/images/${poster}.jpg`}
+          alt="Aperçu de la vidéo : un flacon BalanceOil et le coffret BalanceTest"
+          width="1024"
+          height="576"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+    )
+  }
   <button class="video__cover" type="button" data-video-play>
     <span class="video__icon" aria-hidden="true">
       <svg viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r="30" />
+        <circle cx="32" cy="32" r="32" />
         <path d="M26 20l20 12-20 12z" />
       </svg>
     </span>
-    <span class="video__label">{label}</span>
-    {duration && <span class="video__duration">{duration}</span>}
-    <span class="video__notice">
-      Le lecteur est fourni par un tiers et ne se charge qu'à cet instant.
+    <span class="video__caption">
+      <span class="video__label">{label}</span>
+      {duration && <span class="video__duration">{duration}</span>}
     </span>
   </button>
 </div>
+  {/* Hors du cadre : posee sur l'image, la mention recouvrait le sujet */}
+  <figcaption class="video__notice">
+    Le lecteur est fourni par un tiers et ne se charge qu'à cet instant.
+  </figcaption>
+</figure>
 
 <style>
+  .video-block {
+    margin: 0;
+  }
+
   .video {
     position: relative;
     aspect-ratio: 16 / 9;
     border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: var(--shadow-md);
-    background: linear-gradient(
-      155deg,
-      var(--color-green-leaf),
-      var(--color-green-deep)
-    );
+    /* Teinte d'attente, le temps que l'aperçu arrive */
+    background: var(--color-green-deep-dark);
+  }
+
+  .video__poster,
+  .video__poster img {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video__poster img {
+    object-fit: cover;
+    transition: transform var(--transition);
   }
 
   .video__cover {
     position: absolute;
     top: 0; right: 0; bottom: 0; left: 0;
     display: grid;
-    align-content: center; justify-content: center;
+    align-content: center;
     justify-items: center;
-    gap: var(--space-2xs);
     width: 100%;
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-md);
     border: 0;
-    background: transparent;
+    /* Un voile tres leger, plus dense en bas pour que la legende se lise */
+    background: linear-gradient(
+      to top,
+      rgb(10 32 20 / 0.6),
+      rgb(10 32 20 / 0) 38%
+    );
     color: #fff;
-    text-align: center;
     cursor: pointer;
   }
 
   .video__icon svg {
-    width: 4.5rem;
-    height: 4.5rem;
+    width: 4.25rem;
+    height: 4.25rem;
+    filter: drop-shadow(0 6px 18px rgb(10 32 20 / 0.35));
     transition: transform var(--transition);
   }
 
   .video__icon circle {
-    fill: none;
-    stroke: #fff;
-    stroke-width: 3;
+    fill: rgb(255 255 255 / 0.92);
   }
 
   .video__icon path {
-    fill: var(--color-gold);
+    fill: var(--color-green-deep);
   }
 
-  .video__cover:hover .video__icon svg {
+  .video__cover:hover .video__icon svg,
+  .video__cover:focus-visible .video__icon svg {
     transform: scale(1.06);
   }
 
+  .video:hover .video__poster img {
+    transform: scale(1.02);
+  }
+
+  /* Une seule ligne en bas a gauche : le titre, puis la duree */
+  .video__caption {
+    position: absolute;
+    left: var(--space-md);
+    right: var(--space-md);
+    bottom: var(--space-sm);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-xs);
+    text-align: left;
+  }
+
   .video__label {
-    font-family: var(--font-ui);
+    font-family: var(--font-display);
     font-size: var(--text-lg);
-    font-weight: 800;
-    margin-top: var(--space-2xs);
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   .video__duration {
-    font-size: var(--text-sm);
-    color: var(--color-gold);
-    font-weight: 700;
+    font-size: var(--text-xs);
+    color: rgb(255 255 255 / 0.85);
   }
 
   .video__notice {
-    max-width: 32ch;
-    margin-top: var(--space-2xs);
+    margin-top: var(--space-xs);
     font-size: var(--text-xs);
-    color: #cfe0d3;
+    color: var(--color-text-muted);
   }
 
   .video :global(iframe) {
@@ -118,24 +177,19 @@ const {
   }
 
   @media (max-width: 40rem) {
-    .video__cover {
-      /* Le cadre 16/9 ne fait plus que 190 px de haut : on resserre tout */
-      gap: 0;
-      padding: var(--space-xs);
+    .video__icon svg {
+      width: 3rem;
+      height: 3rem;
     }
 
-    .video__icon svg {
-      width: 2.75rem;
-      height: 2.75rem;
+    .video__caption {
+      left: var(--space-sm);
+      right: var(--space-sm);
+      bottom: var(--space-xs);
     }
 
     .video__label {
-      margin-top: 0;
       font-size: var(--text-base);
-    }
-
-    .video__notice {
-      display: none;
     }
   }
 </style>

@@ -118,6 +118,7 @@ const steps = [
               src={balanceVideoUrl}
               title="L'équilibre expliqué en deux minutes"
               duration="2 min 21"
+              poster="video-equilibre"
             />
           ) : (
             <MediaSlot
@@ -432,29 +433,29 @@ const steps = [
        pleines, au lieu de quatre plus deux. */
     grid-template-columns: repeat(
       auto-fit,
-      minmax(max(min(17rem, 100%), calc((100% - 2 * var(--space-xs)) / 3)), 1fr)
+      minmax(max(min(17rem, 100%), calc((100% - 2 * var(--space-lg)) / 3)), 1fr)
     );
-    gap: var(--space-xs);
+    gap: var(--space-md) var(--space-lg);
   }
 
+  /* Ce sont des phrases qu'on entend : elles se lisent comme des
+     citations, en serif italique, sans boite ni puce. */
   .signals__list li {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--space-xs);
-    align-items: start;
-    padding: 0.8rem 1rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--color-text);
   }
 
   .signals__list li::before {
-    content: '';
-    width: 0.5rem;
-    height: 0.5rem;
-    margin-top: 0.6em;
-    border-radius: 50%;
-    background: var(--color-gold);
+    content: '«\00a0';
+    color: var(--color-gold);
+  }
+
+  .signals__list li::after {
+    content: '\00a0»';
+    color: var(--color-gold);
   }
 
   .signals__note {
@@ -560,23 +561,19 @@ const steps = [
     gap: var(--space-lg);
   }
 
+  /* Trois etapes posees sur la page, sans boite : le chiffre suffit a
+     les rythmer. */
   .step {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: var(--space-sm);
     align-items: start;
-    padding: var(--space-md);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
   }
 
   .step__number {
     font-family: var(--font-display);
-    font-size: var(--text-2xl);
-    font-weight: 900;
-    font-style: italic;
+    font-size: var(--text-3xl);
+    font-weight: 600;
     line-height: 1;
     color: var(--color-gold);
   }
