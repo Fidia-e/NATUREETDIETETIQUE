@@ -193,9 +193,11 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: 800;
+  /* Demi-gras plutot que gras : le serif garde son dessin et le titre
+     gagne en finesse. Lora s'arrete a 700, au-dela rien ne change. */
+  font-weight: 600;
   line-height: 1.08;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   text-wrap: balance;
   color: var(--color-green-deep);
 }
@@ -446,8 +448,13 @@ textarea,
   grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
 }
 
+/* Deux colonnes au plus : quatre cartes se rangent en deux paires, au lieu
+   de trois plus une carte seule sur la derniere ligne. */
 .grid--2 {
-  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(max(min(20rem, 100%), calc((100% - var(--space-lg)) / 2)), 1fr)
+  );
 }
 
 .card {

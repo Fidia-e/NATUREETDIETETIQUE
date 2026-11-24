@@ -440,6 +440,30 @@ describe('charte appliquee', () => {
   });
 
   /*
+   * Passe d'elegance du 24 novembre : les titres en demi-gras, et des grilles
+   * qui ne laissent plus une carte seule sur leur derniere ligne.
+   */
+  it('dessine les titres en serif demi-gras', () => {
+    const headings = [...css.matchAll(/h1,h2,h3,h4\{([^}]*)\}/g)].map((m) => m[1]);
+    const display = headings.find((rule) => rule.includes('font-family:var(--font-display)'));
+    expect(display, 'regle des titres introuvable').toBeDefined();
+    expect(display).toMatch(/font-weight:600/);
+  });
+
+  it('plafonne les grilles pour ne pas laisser de carte orpheline', () => {
+    // .grid--2 : deux colonnes au plus, quatre ateliers font deux paires
+    expect(css).toMatch(/\.grid--2\{[^}]*calc\(\(100% - var\(--space-lg\)\) \/ 2\)/);
+    // Les six signes de l'accueil : trois colonnes au plus, deux lignes pleines
+    expect(css).toMatch(/\.signals__list(?:\[[^\]]*\])?\{[^}]*\/ 3\)/);
+  });
+
+  it('ecrit le chiffre de l’eau dans le serif des titres', () => {
+    const rule = css.match(/\.water__stat(?:\[[^\]]*\])? strong(?:\[[^\]]*\])?\{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toMatch(/font-family:var\(--font-display\)/);
+    expect(rule).not.toMatch(/font-style:italic/);
+  });
+
+  /*
    * La signature est a mi-distance du filet et du bas de la page : le meme
    * espace au-dessus et en dessous, et rien sous elle. On lit le CSS envoye,
    * la minification fusionnerait les deux proprietes.

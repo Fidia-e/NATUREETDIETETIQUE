@@ -428,7 +428,12 @@ const steps = [
     padding: 0;
     margin: var(--space-md) 0 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+    /* Trois colonnes au plus : les six signes tombent en deux lignes
+       pleines, au lieu de quatre plus deux. */
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(max(min(17rem, 100%), calc((100% - 2 * var(--space-xs)) / 3)), 1fr)
+    );
     gap: var(--space-xs);
   }
 
@@ -478,7 +483,9 @@ const steps = [
   .test__list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    /* Le meme ecart que entre deux paragraphes : `margin: 0` collait la
+       liste au texte au-dessus. */
+    margin: var(--space-sm) 0 0;
     display: grid;
     gap: var(--space-2xs);
     font-size: var(--text-sm);
@@ -522,11 +529,14 @@ const steps = [
     text-align: center;
   }
 
+  /* Le chiffre prend le serif des titres : en sans italique tres gras, il
+     detonnait avec le reste de la page. */
   .water__stat strong {
     display: block;
+    font-family: var(--font-display);
     font-size: var(--text-3xl);
-    font-weight: 900;
-    font-style: italic;
+    font-weight: 600;
+    letter-spacing: -0.02em;
     color: var(--color-gold);
   }
 
