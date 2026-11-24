@@ -90,7 +90,7 @@ export const links = {
 export const ecoIndex = {
   grade: 'A',
   /** Score de la page la moins bien notee, sur 100. */
-  worstScore: 82.2,
+  worstScore: 82.1,
   measuredOn: '2026-11-21',
 } as const;
 
