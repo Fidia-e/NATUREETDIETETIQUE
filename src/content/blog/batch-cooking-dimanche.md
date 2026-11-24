@@ -16,7 +16,7 @@ L'erreur classique est de cuisiner cinq plats finis le dimanche. Le mercredi, on
 
 ### Les féculents (une seule cuisson)
 
-Une grande casserole de semi-complet : riz, boulgour, lentilles ou pâtes. Comptez une portion par dîner. Conservation : quatre jours au réfrigérateur dans une boîte fermée.
+Une grande casserole de semi-complet : riz, boulgour, lentilles ou pâtes. Comptez une portion par dîner. Conservation : quatre jours au réfrigérateur ou au congélateur, toujours dans une boîte fermée.
 
 ### Les légumes (deux cuissons)
 
@@ -24,24 +24,24 @@ Une plaque de légumes rôtis au four, 40 minutes à 200 °C, huile d'olive et h
 
 ### Les protéines (deux préparations)
 
-Par exemple des blancs de poulet cuits au four avec les légumes, et une préparation végétale : pois chiches rôtis, œufs durs, ou un bloc de tofu mariné puis poêlé.
+Par exemple des blancs de poulet cuits au four avec les légumes, et une préparation végétale : des œufs au plat, ou un bloc de tofu ou de tempeh mariné puis poêlé.
 
 ### Les sauces (quinze minutes)
 
 C'est ce qui fait toute la différence entre cinq fois le même dîner et cinq dîners différents. Préparez deux sauces en bocal :
 
-- **Vinaigrette au yaourt** : yaourt nature, moutarde, citron, ail, herbes.
-- **Sauce tahini** : purée de sésame, citron, eau, sel, un peu de cumin.
+- **Vinaigrette au yaourt** : yaourt nature, moutarde, citron, ail, herbes, huile d'olive, sel marin.
+- **Sauce tahini** : purée de sésame, citron, huile d'olive, sel, un peu de cumin, et éventuellement un peu d'eau.
 
 ## Assembler dans la semaine
 
 | Soir | Assemblage |
 | --- | --- |
-| Lundi | Boulgour, légumes rôtis, poulet, sauce tahini |
+| Lundi | Poulet, légumes rôtis, sauce tahini, boulgour |
 | Mardi | Salade tiède de lentilles, œuf dur, légumes verts, vinaigrette |
-| Mercredi | Poêlée de riz, tofu, légumes verts, sauce soja et sésame |
-| Jeudi | Bowl froid : boulgour, pois chiches, légumes rôtis, sauce yaourt |
-| Vendredi | Omelette, reste de légumes, salade verte |
+| Mercredi | Tofu ou tempeh, légumes verts, sauce soja et sésame, riz |
+| Jeudi | Viande hachée, soupe de légumes, fromage râpé, pain maison protéiné beurré |
+| Vendredi | Omelette, salade verte, restes de légumes et de féculents |
 
 ## Ce qu'il faut accepter
 

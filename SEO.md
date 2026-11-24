@@ -26,7 +26,7 @@ fort (remboursement par les complémentaires) et une expression recherchée.
 | Action | Pourquoi |
 | --- | --- |
 | Créer et vérifier la **fiche Google Business Profile** | C'est elle qui apparaît sur la carte, au-dessus des résultats. Sans fiche, le site ne sort presque jamais dans le bloc local. |
-| Mettre exactement **les mêmes coordonnées** partout | Nom « Nature & diététique », Route de la Maison Neuve 5A, 1753 Matran, +41 79 552 74 84. Google recoupe : le moindre écart affaiblit la fiche. |
+| Mettre exactement **les mêmes coordonnées** partout | Nom « Nature & diététique », Route de la Maison Neuve 5A, 1753 Matran, +41 79 634 05 23. Google recoupe : le moindre écart affaiblit la fiche. |
 | Demander **des avis Google** aux clientes satisfaites | Nombre, régularité et réponses aux avis comptent dans le classement local. |
 | S'inscrire sur **local.ch et search.ch** | Les annuaires suisses de référence, très bien classés eux-mêmes. |
 | Valider le domaine dans **Google Search Console** et y déclarer `https://natureetdietetique.com/sitemap-index.xml` | Pour savoir quelles recherches amènent du monde, et repérer les pages ignorées. |

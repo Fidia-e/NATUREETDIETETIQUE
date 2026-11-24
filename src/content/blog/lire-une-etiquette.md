@@ -24,7 +24,7 @@ Le tableau donne les valeurs pour 100 g. Personne ne mange 100 g de céréales a
 
 ## 4. Se méfier des allégations de la face avant
 
-« Riche en fibres », « source de calcium », « sans sucres ajoutés » sont des mentions réglementées, donc exactes. Elles ne disent rien du reste du produit. Un biscuit peut être authentiquement riche en fibres et rester un biscuit. L'allégation est un projecteur : elle éclaire un point et laisse le reste dans l'ombre.
+« Riche en fibres », « source de calcium », « sans sucres ajoutés » sont des mentions réglementées, donc exactes. Elles ne disent rien du reste du produit. Un biscuit peut être authentiquement riche en fibres et contenir du sirop de glucose. L'allégation est un projecteur : elle éclaire un point et laisse le reste dans l'ombre.
 
 ## Un repère simple
 
