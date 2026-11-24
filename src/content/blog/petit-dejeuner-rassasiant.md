@@ -30,6 +30,6 @@ Un petit-déjeuner rassasiant tient sur trois appuis, et il en manque presque to
 
 ## Et si je n'ai pas faim le matin ?
 
-Ne forcez pas. L'appétit matinal dépend du dîner de la veille, du sommeil et du rythme de chacun. Si vous n'avez pas faim au réveil, emportez une collection complète pour 10 h plutôt que d'avaler un repas dont votre corps ne veut pas. Ce qui compte, c'est la régularité sur la journée, pas le respect d'une case horaire.
+Ne forcez pas. L'appétit matinal dépend du dîner de la veille, du sommeil et du rythme de chacun. Si vous n'avez pas faim au réveil, emportez une collation complète pour 10 h plutôt que d'avaler un repas dont votre corps ne veut pas. Ce qui compte, c'est la régularité sur la journée, pas le respect d'une case horaire.
 
 > Un petit-déjeuner réussi, c'est celui après lequel vous ne pensez plus à manger pendant quatre heures. C'est le seul critère qui compte.

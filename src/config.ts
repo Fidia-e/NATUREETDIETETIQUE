@@ -16,9 +16,9 @@ export const practitioner = {
 
 export const contact = {
   email: 'fdeternod@deternodf.ch',
-  phone: '+41 79 552 74 84',
+  phone: '+41 79 634 05 23',
   // Sans espaces ni indicatif local, pour les liens tel:
-  phoneLink: '+41795527484',
+  phoneLink: '+41796340523',
   address: {
     street: 'Route de la Maison Neuve 5A',
     zip: 'CH-1753',
