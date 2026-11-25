@@ -278,6 +278,20 @@ describe('video integree', () => {
     expect(html).toContain('2 min 21');
   });
 
+  /*
+   * Un vrai apercu plutot qu'un aplat vert [Fidia, 2026-11-24] : l'image que
+   * le lecteur montre lui-meme avant la lecture. La mention du tiers vit
+   * sous le cadre, posee sur l'image elle recouvrait le sujet.
+   */
+  it('montre l\u2019apercu de la video, et la mention du tiers sous le cadre', () => {
+    for (const url of ['/', '/le-chiffre/']) {
+      const html = pageFor(url)!.html;
+      expect(html, url).toMatch(/<img[^>]+src="\/images\/video-equilibre\.jpg"[^>]+alt="[^"]+"/);
+      expect(html, url).toMatch(/<figcaption[^>]*class="video__notice[^"]*"[^>]*>\s*Le lecteur est fourni par un tiers/);
+    }
+    expect(files.has('/images/video-equilibre.avif')).toBe(true);
+  });
+
   it('previent que le lecteur vient d\u2019un tiers', () => {
     expect(pageFor('/')!.html).toContain('fourni par un tiers');
     expect(pageFor('/mentions-legales/')!.html).toContain('vidéo de présentation');
