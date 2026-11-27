@@ -205,6 +205,7 @@ describe('liens et ressources', () => {
   it('sert chaque photo en AVIF et en JPEG', () => {
     for (const name of [
       'florie-portrait',
+      'florie-accueil',
       'balancetest',
       'nature-phyto',
       'marche-foret',
@@ -260,6 +261,37 @@ describe('cadre suisse', () => {
       expect(pageFor(url)!.html).toContain('Matran');
     }
   });
+
+  /*
+   * Le prix du dossier, en francs et en euros [Florie, 2026-11-26], pour
+   * qu'on ne le croie pas compris dans le bilan offert.
+   */
+  it('annonce le tarif du dossier en francs et en euros', () => {
+    const html = pageFor('/accompagnement/')!.html;
+    expect(html).toMatch(/CHF(&nbsp;| )100\.–/);
+    // Les espaces autour du prix, que la mise en forme avait avalees
+    expect(html).toMatch(/Le tarif de <span[^>]*>CHF/);
+    expect(html).toMatch(/100\.–<\/span> \(<span[^>]*>110/);
+    expect(html).toMatch(/110(&nbsp;| )euros/);
+  });
+
+  // Un prix ne se coupe jamais : ni entre le nombre et sa monnaie, ni dans
+  // les milliers.
+  it('ne coupe aucun prix en deux', () => {
+    const offenders: string[] = [];
+    for (const page of pages) {
+      // Le texte seul : les attributs (viewBox des SVG) ont leurs espaces
+      const text = page.html
+        .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '')
+        .replace(/<[^>]+>/g, ' ');
+      for (const [hit] of text.matchAll(
+        /\d[ \t\n]+(€|euros?\b|CHF\b)|\bCHF[ \t\n]+\d|\d[ \t\n]+\d{3}(?!\d)[ \t\n]*(€|euros?\b|CHF\b)/g
+      )) {
+        offenders.push(`${page.url} : « ${hit} »`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
 });
 
 describe('video integree', () => {
@@ -290,6 +322,23 @@ describe('video integree', () => {
       expect(html, url).toMatch(/<figcaption[^>]*class="video__notice[^"]*"[^>]*>\s*Le lecteur est fourni par un tiers/);
     }
     expect(files.has('/images/video-equilibre.avif')).toBe(true);
+  });
+
+  /*
+   * Le film de Sonatec sur la page de l'eau [Florie, 2026-11-26, \u00ab Remplacer
+   * cette image par le petit film de 2 min \u00bb, Sonatec d'accord]. Il est servi
+   * par le site : rien ne se telecharge avant le clic, et la mention du tiers
+   * n'a pas lieu d'etre.
+   */
+  it('montre le film de Sonatec sur la page de l\u2019eau, charge au clic', () => {
+    const html = pageFor('/l-eau/')!.html;
+    expect(html).toContain('data-file="/videos/eau-structuree-sonatec.mp4"');
+    expect(html).toMatch(/<img[^>]+src="\/images\/video-eau\.jpg"[^>]+alt="[^"]+"/);
+    expect(html).toContain('2 min 14');
+    expect(html).not.toMatch(/<video\b/);
+    expect(html).not.toContain('fourni par un tiers');
+    expect(files.has('/videos/eau-structuree-sonatec.mp4')).toBe(true);
+    expect(files.has('/images/video-eau.avif')).toBe(true);
   });
 
   it('previent que le lecteur vient d\u2019un tiers', () => {

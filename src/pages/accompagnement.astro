@@ -83,6 +83,15 @@ const includes = [
         <ul class="includes__list">
           {includes.map((item) => <li>{item}</li>)}
         </ul>
+        {/* Le prix, pour qu'on ne croie pas le dossier offert [Florie, 2026-11-26] */}
+        <p class="includes__price">
+          {/* Espaces explicites : Astro avale celles des retours a la ligne */}
+          Le tarif de{' '}
+          <span class="price">CHF&nbsp;100.–</span>{' '}
+          (<span class="price">110&nbsp;euros</span>) comprend l'analyse
+          approfondie de vos résultats ainsi qu'un rendez-vous personnalisé
+          pour vous les expliquer et répondre à vos questions.
+        </p>
       </div>
 
       <MediaSlot label="Photo du dossier remis après l'état des lieux" ratio="4 / 3" />
@@ -190,6 +199,19 @@ const includes = [
     display: grid;
     gap: var(--space-2xs);
     font-size: var(--text-sm);
+  }
+
+  .includes__price {
+    margin-top: var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* Un prix ne se coupe jamais, tiret final compris */
+  .price {
+    white-space: nowrap;
+    color: var(--color-text);
+    font-weight: 600;
   }
 
   .includes__list li {

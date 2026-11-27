@@ -12,7 +12,7 @@ Si vous avez faim à 11 h, le problème n'est presque jamais la quantité du pet
 
 ## Ce qui se joue dans les deux heures qui suivent
 
-Un petit-déjeuner construit uniquement autour de glucides rapides (jus de fruits, pain blanc, confiture, céréales sucrées) fait monter la glycémie vite et haut. Le corps répond par une sécrétion d'insuline proportionnelle, la glycémie redescend sous son niveau de départ, et la sensation de faim revient. Vous n'avez pas manqué de volonté : vous avez suivi une courbe.
+Un petit-déjeuner construit uniquement autour de glucides (jus de fruits, même faits maison, pain, confiture, céréales) fait monter la glycémie vite et haut. Le corps répond par une sécrétion d'insuline proportionnelle, la glycémie redescend sous son niveau de départ, et la sensation de faim revient. Vous n'avez pas manqué de volonté : vous avez suivi une courbe.
 
 ## Les trois appuis d'un premier repas
 

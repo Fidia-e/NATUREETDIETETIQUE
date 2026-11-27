@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
-import Photo from '../components/Photo.astro';
+import VideoEmbed from '../components/VideoEmbed.astro';
 import { links } from '../config';
 
 /** Ce que la filtration retire réellement, et ce qu'elle ne retire pas. */
@@ -52,7 +52,7 @@ const together = [
   },
   {
     title: 'La qualité à la maison',
-    text: "Si la filtration vous intéresse, on regarde ce qui est pertinent chez vous : la dureté de votre commune, votre installation, votre budget.",
+    text: "Si la filtration vous intéresse, on regarde ce qui est pertinent chez vous : la dureté dans votre commune, votre installation, votre budget.",
   },
 ];
 ---
@@ -72,21 +72,20 @@ const together = [
       <div class="prose stack">
         <h2>Le point de départ</h2>
         <p>
-          L'eau du robinet suisse est contrôlée et potable, ce qui n'est pas
-          rien. Elle reste une eau traitée, poussée sous pression dans des
-          canalisations, parfois très calcaire selon la commune. Et elle
-          transporte des résidus que même les nombreux traitements des communes
-          ne retirent pas.
+          L'eau du robinet en Suisse est contrôlée et potable, ce qui n'est
+          pas rien. Malgré cela, elle transporte des résidus que même les
+          nombreux traitements des communes ne retirent pas.
         </p>
       </div>
 
-      <Photo
-        name="nature-phyto"
-        alt="Plantes conservées dans des fioles de verre, à côté d'une fiole d'huile"
-        width={642}
-        height={1010}
-        ratio="4 / 5"
-        focus="center 60%"
+      {/* Le film de Sonatec, a la demande de Florie, avec leur accord */}
+      <VideoEmbed
+        file="/videos/eau-structuree-sonatec.mp4"
+        title="L'eau structurée selon Sonatec"
+        duration="2 min 14"
+        poster="video-eau"
+        posterAlt="Aperçu de la vidéo : une goutte d'eau perlant sur une feuille verte"
+        label="Le film de Sonatec"
       />
     </div>
   </section>
@@ -221,7 +220,8 @@ const together = [
 <style>
   .intro {
     display: grid;
-    grid-template-columns: 1.3fr 0.7fr;
+    /* Le film est en 16/9 : il lui faut la plus large des deux colonnes */
+    grid-template-columns: 1fr 1.1fr;
     gap: var(--space-xl);
     align-items: center;
   }
