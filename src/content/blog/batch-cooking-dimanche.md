@@ -20,7 +20,7 @@ Une grande casserole de semi-complet : riz, boulgour, lentilles ou pâtes. Compt
 
 ### Les légumes (deux cuissons)
 
-Une plaque de légumes rôtis au four, 40 minutes à 200 °C, huile d'olive et herbes : courgettes, poivrons, oignons, carottes selon la saison. Et une casserole de légumes verts à l'eau ou à la vapeur, plus neutres, qui serviront de base.
+Une plaque de légumes rôtis au four, 40 minutes à 120 °C, huile d'olive et herbes : courgettes, poivrons, oignons, carottes selon la saison. Et une casserole de légumes verts à l'eau ou à la vapeur, plus neutres, qui serviront de base.
 
 ### Les protéines (deux préparations)
 

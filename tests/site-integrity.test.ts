@@ -261,6 +261,37 @@ describe('cadre suisse', () => {
       expect(pageFor(url)!.html).toContain('Matran');
     }
   });
+
+  /*
+   * Le prix du dossier, en francs et en euros [Florie, 2026-11-26], pour
+   * qu'on ne le croie pas compris dans le bilan offert.
+   */
+  it('annonce le tarif du dossier en francs et en euros', () => {
+    const html = pageFor('/accompagnement/')!.html;
+    expect(html).toMatch(/CHF(&nbsp;| )100\.–/);
+    // Les espaces autour du prix, que la mise en forme avait avalees
+    expect(html).toMatch(/Le tarif de <span[^>]*>CHF/);
+    expect(html).toMatch(/100\.–<\/span> \(<span[^>]*>110/);
+    expect(html).toMatch(/110(&nbsp;| )euros/);
+  });
+
+  // Un prix ne se coupe jamais : ni entre le nombre et sa monnaie, ni dans
+  // les milliers.
+  it('ne coupe aucun prix en deux', () => {
+    const offenders: string[] = [];
+    for (const page of pages) {
+      // Le texte seul : les attributs (viewBox des SVG) ont leurs espaces
+      const text = page.html
+        .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '')
+        .replace(/<[^>]+>/g, ' ');
+      for (const [hit] of text.matchAll(
+        /\d[ \t\n]+(€|euros?\b|CHF\b)|\bCHF[ \t\n]+\d|\d[ \t\n]+\d{3}(?!\d)[ \t\n]*(€|euros?\b|CHF\b)/g
+      )) {
+        offenders.push(`${page.url} : « ${hit} »`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
 });
 
 describe('video integree', () => {
