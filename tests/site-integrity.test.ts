@@ -205,6 +205,7 @@ describe('liens et ressources', () => {
   it('sert chaque photo en AVIF et en JPEG', () => {
     for (const name of [
       'florie-portrait',
+      'florie-accueil',
       'balancetest',
       'nature-phyto',
       'marche-foret',
