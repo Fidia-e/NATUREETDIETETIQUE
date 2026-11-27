@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
-import Photo from '../components/Photo.astro';
+import VideoEmbed from '../components/VideoEmbed.astro';
 import { links } from '../config';
 
 /** Ce que la filtration retire réellement, et ce qu'elle ne retire pas. */
@@ -80,13 +80,14 @@ const together = [
         </p>
       </div>
 
-      <Photo
-        name="nature-phyto"
-        alt="Plantes conservées dans des fioles de verre, à côté d'une fiole d'huile"
-        width={642}
-        height={1010}
-        ratio="4 / 5"
-        focus="center 60%"
+      {/* Le film de Sonatec, a la demande de Florie, avec leur accord */}
+      <VideoEmbed
+        file="/videos/eau-structuree-sonatec.mp4"
+        title="L'eau structurée selon Sonatec"
+        duration="2 min 14"
+        poster="video-eau"
+        posterAlt="Aperçu de la vidéo : une goutte d'eau perlant sur une feuille verte"
+        label="Le film de Sonatec"
       />
     </div>
   </section>
@@ -221,7 +222,8 @@ const together = [
 <style>
   .intro {
     display: grid;
-    grid-template-columns: 1.3fr 0.7fr;
+    /* Le film est en 16/9 : il lui faut la plus large des deux colonnes */
+    grid-template-columns: 1fr 1.1fr;
     gap: var(--space-xl);
     align-items: center;
   }

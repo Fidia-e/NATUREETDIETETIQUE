@@ -293,6 +293,23 @@ describe('video integree', () => {
     expect(files.has('/images/video-equilibre.avif')).toBe(true);
   });
 
+  /*
+   * Le film de Sonatec sur la page de l'eau [Florie, 2026-11-26, \u00ab Remplacer
+   * cette image par le petit film de 2 min \u00bb, Sonatec d'accord]. Il est servi
+   * par le site : rien ne se telecharge avant le clic, et la mention du tiers
+   * n'a pas lieu d'etre.
+   */
+  it('montre le film de Sonatec sur la page de l\u2019eau, charge au clic', () => {
+    const html = pageFor('/l-eau/')!.html;
+    expect(html).toContain('data-file="/videos/eau-structuree-sonatec.mp4"');
+    expect(html).toMatch(/<img[^>]+src="\/images\/video-eau\.jpg"[^>]+alt="[^"]+"/);
+    expect(html).toContain('2 min 14');
+    expect(html).not.toMatch(/<video\b/);
+    expect(html).not.toContain('fourni par un tiers');
+    expect(files.has('/videos/eau-structuree-sonatec.mp4')).toBe(true);
+    expect(files.has('/images/video-eau.avif')).toBe(true);
+  });
+
   it('previent que le lecteur vient d\u2019un tiers', () => {
     expect(pageFor('/')!.html).toContain('fourni par un tiers');
     expect(pageFor('/mentions-legales/')!.html).toContain('vidéo de présentation');
